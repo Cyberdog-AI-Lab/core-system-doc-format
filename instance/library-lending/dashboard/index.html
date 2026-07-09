@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>基幹システム ドキュメント体系ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<style>
+  :root{
+    --bg:#faf9f6; --surface:#fff; --line:#e7e4dc; --line2:#d3d1c7;
+    --text:#2c2c2a; --muted:#6b6a64; --hint:#9b9a92;
+    --upstream:#5f5e5a; --upstream-bg:#f1efe8;
+    --artifact:#534ab7; --artifact-bg:#eeedfe;
+    --verify:#0f6e56; --verify-bg:#e1f5ee;
+    --cross:#993c1d; --cross-bg:#faece7;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.7;font-size:15px}
+  a{color:var(--artifact);text-decoration:none;cursor:pointer}
+  a:hover{text-decoration:underline}
+  header{padding:18px 24px;border-bottom:1px solid var(--line);background:var(--surface);
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{font-size:18px;font-weight:600;margin:0}
+  header .sub{color:var(--muted);font-size:13px}
+  header .status{margin-left:auto;font-size:12px;color:var(--hint)}
+  nav.tabs{display:flex;gap:4px;padding:8px 24px 0;border-bottom:1px solid var(--line);
+    background:var(--surface);position:sticky;top:0;z-index:5}
+  nav.tabs button{font:inherit;font-size:14px;border:0;background:none;color:var(--muted);
+    padding:9px 14px;border-radius:8px 8px 0 0;cursor:pointer;border-bottom:2px solid transparent}
+  nav.tabs button.active{color:var(--text);border-bottom-color:var(--artifact);font-weight:500}
+  nav.tabs button:hover{background:var(--bg)}
+  main{padding:22px 24px;max-width:1180px;margin:0 auto}
+  .view{display:none}
+  .view.active{display:block}
+  h2.section{font-size:15px;font-weight:600;margin:26px 0 12px;color:var(--text)}
+  h2.section:first-child{margin-top:4px}
+  .muted{color:var(--muted)}
+  .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:20px;border:1px solid var(--line2)}
+  .g-upstream{background:var(--upstream-bg);color:var(--upstream)}
+  .g-artifact{background:var(--artifact-bg);color:var(--artifact)}
+  .g-verify{background:var(--verify-bg);color:var(--verify)}
+  .g-cross{background:var(--cross-bg);color:var(--cross)}
+
+  /* overview cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:13px 14px;cursor:pointer;transition:border-color .12s}
+  .card:hover{border-color:var(--line2)}
+  .card .num{font-size:11px;color:var(--hint)}
+  .card .title{font-weight:600;font-size:14px;margin:2px 0 4px}
+  .card .role{font-size:12px;color:var(--muted)}
+  .card .meta{margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+  /* model svg */
+  .modelwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px;overflow:auto}
+  .mbox{cursor:pointer}
+  .mbox rect{transition:opacity .12s}
+  .mbox:hover rect{opacity:.82}
+  .mt{font-size:12px;font-weight:600}
+  .ms{font-size:11px}
+
+  /* threads */
+  .thread{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px}
+  .thread .lab{font-weight:600;font-size:13px}
+  .thread .path{font-size:13px;color:var(--muted)}
+  .thread .path a{font-weight:500}
+  .thread .path .arr{color:var(--hint);margin:0 4px}
+
+  /* timeline controls */
+  .tlbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+  .tlbar .chip{font-size:12px;border:1px solid var(--line2);border-radius:20px;padding:2px 10px;cursor:pointer;background:var(--surface)}
+  .tlbar .chip.active{background:var(--artifact-bg);color:var(--artifact);border-color:var(--artifact)}
+  .tlbar input{font:inherit;font-size:12px;border:1px solid var(--line2);border-radius:8px;padding:4px 10px;margin-left:auto;min-width:180px;background:var(--surface)}
+  #tlcheck{font-size:12px;color:var(--muted);margin:8px 2px}
+  #tlcheck .warn{color:#993c1d}
+
+  /* matrix */
+  .matrix-scroll{overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+  table.matrix{border-collapse:collapse;font-size:12px;min-width:680px}
+  table.matrix th,table.matrix td{border:1px solid var(--line);padding:5px 7px;text-align:center;white-space:nowrap}
+  table.matrix th.rowh{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1}
+  table.matrix thead th{background:var(--bg);font-weight:500;color:var(--muted)}
+  table.matrix td.hit{cursor:pointer;color:var(--artifact);font-weight:600}
+  table.matrix td.hit:hover{background:var(--artifact-bg)}
+  table.matrix td.self{background:#f4f3ee;color:var(--hint)}
+
+  /* doc view */
+  .docgrid{display:grid;grid-template-columns:210px 1fr 200px;gap:18px;align-items:start}
+  .doclist{position:sticky;top:54px}
+  .doclist .item{display:block;padding:7px 10px;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer}
+  .doclist .item:hover{background:var(--surface)}
+  .doclist .item.active{background:var(--artifact-bg);color:var(--artifact);font-weight:500}
+  .docmain{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 26px 30px;min-width:0}
+  .toc{position:sticky;top:54px;font-size:12px;max-height:80vh;overflow:auto}
+  .toc .th{font-weight:600;color:var(--muted);margin:0 0 6px}
+  .toc a{display:block;color:var(--muted);padding:2px 0}
+  .toc a.h3{padding-left:12px;font-size:11px;color:var(--hint)}
+  .refs{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  .refs .th{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .refs .chip{display:inline-block;font-size:12px;border:1px solid var(--line2);border-radius:20px;
+    padding:2px 10px;margin:0 6px 6px 0;cursor:pointer}
+  .refs .chip:hover{background:var(--bg)}
+
+  /* rendered markdown */
+  .md h1{font-size:21px;font-weight:600;margin:18px 0 6px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .md h2{font-size:17px;font-weight:600;margin:24px 0 8px;scroll-margin-top:60px}
+  .md h3{font-size:15px;font-weight:600;margin:18px 0 6px;scroll-margin-top:60px}
+  .md p,.md li{font-size:14px}
+  .md table{border-collapse:collapse;margin:10px 0;font-size:12.5px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top}
+  .md th{background:var(--bg);font-weight:600}
+  .md code{background:#f1efe8;padding:1px 5px;border-radius:5px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .md pre{background:#f7f5ef;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto}
+  .md pre code{background:none;padding:0;font-size:12.5px}
+  .md blockquote{border-left:3px solid var(--line2);margin:10px 0;padding:2px 14px;color:var(--muted)}
+  .loading{color:var(--muted);padding:40px;text-align:center}
+  @media(max-width:900px){.docgrid{grid-template-columns:1fr}.doclist,.toc{position:static}}
+</style>
+</head>
+<body>
+<header>
+  <h1>ドキュメント体系ダッシュボード</h1>
+  <span class="sub">読込中…</span>
+  <span class="status" id="status">読込中…</span>
+</header>
+<nav class="tabs">
+  <button data-view="overview" class="active">俯瞰</button>
+  <button data-view="trace">トレーサビリティ</button>
+  <button data-view="docs">ドキュメント</button>
+</nav>
+<main>
+  <section class="view active" id="view-overview"></section>
+  <section class="view" id="view-trace"></section>
+  <section class="view" id="view-docs">
+    <div class="docgrid">
+      <aside class="doclist" id="doclist"></aside>
+      <article class="docmain md" id="docmain"><div class="loading">文書を選択してください</div></article>
+      <aside class="toc" id="toc"></aside>
+    </div>
+  </section>
+</main>
+
+<script>
+// 設定（タイトル・文書一覧・別名・タイムラインのデータ元）は同じフォルダの manifest.json から読む。
+// この index.html は全プロジェクト共通＝編集不要。プロジェクトごとの差は manifest.json だけで吸収する。
+let MANIFEST={}, DOCS=[], ALIASES=[], INSTANCE={name:'',file:''};
+const THREADS = [
+  {lab:'値域の貫通',        path:['glossary','info-def','func-spec','api-spec','quality-assurance']},
+  {lab:'状態の貫通',        path:['info-def','func-spec','quality-assurance']},
+  {lab:'トレーサビリティID', path:['requirement','func-spec','api-spec','quality-assurance']},
+  {lab:'非機能',           path:['requirement','architecture','quality-assurance']},
+];
+const GROUPLABEL = {upstream:'上流・メタ',artifact:'成果物（設計）',verify:'検証',cross:'横断'};
+// 要件が反映されていく6層（タイムラインの横軸）。docは対応文書（実装は文書なし）
+const STAGES = [
+  {label:'情報定義', doc:'info-def'},
+  {label:'機能仕様', doc:'func-spec'},
+  {label:'API仕様',  doc:'api-spec'},
+  {label:'アーキ',   doc:'architecture'},
+  {label:'実装',     doc:null},
+  {label:'品質保証', doc:'quality-assurance'},
+];
+let TICKETS = []; // {id,title,stages:[{st,date,ref} x6]}
+
+const raw = {};      // id -> markdown
+const refEdges = {}; // srcId -> {dstId: count}
+let byId = {};
+
+async function loadAll(){
+  try{
+    const r = await fetch('manifest.json');
+    if(!r.ok) throw new Error('not ok');
+    MANIFEST = await r.json();
+  }catch(e){
+    document.getElementById('status').textContent = 'manifest.json が読み込めません';
+    return;
+  }
+  DOCS = MANIFEST.docs; ALIASES = MANIFEST.aliases; INSTANCE = MANIFEST.instance;
+  byId = Object.fromEntries(DOCS.map(d=>[d.id,d]));
+  if(MANIFEST.pageTitle) document.title = MANIFEST.pageTitle;
+  document.querySelector('header h1').textContent = MANIFEST.title || 'ドキュメント体系ダッシュボード';
+  document.querySelector('header .sub').innerHTML = MANIFEST.subtitle || '';
+  await Promise.all(DOCS.map(async d=>{
+    try{ const r2 = await fetch(MANIFEST.docsDir + d.file); raw[d.id] = r2.ok ? await r2.text() : null; }
+    catch(e){ raw[d.id] = null; }
+  }));
+  computeRefs();
+  try{ const r = await fetch(INSTANCE.file); TICKETS = r.ok ? parseTickets(await r.text()) : []; }
+  catch(e){ TICKETS = []; }
+  document.getElementById('status').textContent =
+    Object.values(raw).filter(Boolean).length + ' / ' + DOCS.length + ' 文書を読込';
+  renderOverview(); renderTrace(); renderDocList();
+}
+
+// トレーサビリティ・マトリクス（要件ID … 品質保証 のヘッダを持つ表）をパース
+// セルの正準形＝「状態 日付 反映先ID」（例: 済 2026-06-20 QA-007）。未＝未、対象外＝−
+function parseTickets(md){
+  if(!md) return [];
+  const lines = md.split('\n');
+  const hi = lines.findIndex(l=> l.includes('|') && l.includes('要件ID') && l.includes('品質保証'));
+  if(hi<0) return [];
+  const heads = lines[hi].split('|').slice(1,-1).map(c=>c.trim());
+  const col = name => heads.findIndex(h=>h.startsWith(name));
+  const stageCols = [col('情報定義'),col('機能仕様'),col('API仕様'),col('アーキ'),col('実装'),col('品質保証')];
+  const idCol = col('要件ID'), titleCol = col('タイトル');
+  const out=[];
+  for(let i=hi+2;i<lines.length;i++){
+    const l=lines[i].trim();
+    if(!l.startsWith('|')) break;
+    const cells=l.split('|').slice(1,-1).map(c=>c.trim());
+    const id = idCol>=0 ? cells[idCol] : cells[0];
+    if(!id || /^:?-+:?$/.test(id)) continue;
+    out.push({ id, title: titleCol>=0 ? (cells[titleCol]||'') : '',
+      stages: stageCols.map(ci=> ci>=0 ? parseCell(cells[ci]) : {st:'na'}) });
+  }
+  return out;
+}
+function parseCell(raw){
+  const c=(raw||'').trim();
+  if(!c || /^[—ー−-]+$/.test(c)) return {st:'na'};
+  let st='todo';
+  if(c.startsWith('済')) st='done'; else if(c.startsWith('反映中')) st='doing';
+  const m=c.match(/\d{4}-\d{2}-\d{2}/);
+  if(st==='todo' && m && c.replace(m[0],'').trim()==='') st='done';
+  const ref=c.replace(/^(済|反映中|未)/,'').replace(/\d{4}-\d{2}-\d{2}/,'').trim();
+  return {st, date:m?m[0]:null, ref:ref||null};
+}
+function fmtDate(iso){ const m=String(iso).match(/(\d{1,2})[-/](\d{1,2})$/); return m? (+m[1])+'/'+(+m[2]) : iso; }
+
+function computeRefs(){
+  for(const d of DOCS){
+    refEdges[d.id] = {};
+    let txt = raw[d.id]; if(!txt) continue;
+    // 長い別名から順に、検出済みは伏字化して二重カウント防止
+    for(const [dst,names] of ALIASES){
+      if(dst===d.id) { for(const n of names){ txt = txt.split(n).join(' '.repeat(n.length)); } continue; }
+      let c=0;
+      for(const n of names){ const parts = txt.split(n); c += parts.length-1; txt = parts.join(' '.repeat(n.length)); }
+      if(c>0) refEdges[d.id][dst] = c;
+    }
+  }
+}
+
+/* ---------- 俯瞰 ---------- */
+function docBox(id,x,y,w,h){
+  const d = byId[id]; const cls = 'g-'+d.group;
+  const fill = getComputedStyle(document.documentElement).getPropertyValue('--'+d.group+'-bg').trim();
+  const stroke = getComputedStyle(document.documentElement).getPropertyValue('--'+d.group).trim();
+  return `<g class="mbox" onclick="openDoc('${id}')"><title>${d.title} — ${d.role}</title>`+
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`+
+    `<text class="mt" x="${x+w/2}" y="${y+(d.role?h/2-7:h/2)}" text-anchor="middle" dominant-baseline="central" fill="${stroke}">${d.title}</text>`+
+    (d.roleShort?`<text class="ms" x="${x+w/2}" y="${y+h/2+9}" text-anchor="middle" dominant-baseline="central" fill="${stroke}">${d.roleShort}</text>`:'')+
+    `</g>`;
+}
+function arrow(x1,y1,x2,y2,dash){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#9b9a92" stroke-width="1.2" ${dash?'stroke-dasharray="5 4"':''} marker-end="url(#ar)"/>`;
+}
+function renderOverview(){
+  byId['concept'].roleShort='北極星・独立';
+  byId['glossary'].roleShort='語彙の源';
+  byId['requirement'].roleShort='起点';
+  byId['architecture'].roleShort='基盤・非機能';
+  byId['info-def'].roleShort='源流';
+  byId['func-spec'].roleShort='機能';
+  byId['api-spec'].roleShort='I/F';
+  byId['quality-assurance'].roleShort='横の保証';
+  byId['data-migration'].roleShort='随伴';
+  byId['traceability'].roleShort='全改訂を一元記録';
+  byId['doc-ops-guide'].roleShort='AI主体で統制';
+  byId['ops-runbook'].roleShort='運用手順・リリース台帳';
+  const svg = `
+  <div class="modelwrap"><svg viewBox="0 0 680 522" width="100%" style="max-width:760px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#9b9a92" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    ${docBox('glossary',40,20,170,50)}
+    ${docBox('concept',255,20,200,50)}
+    ${docBox('requirement',255,100,200,50)}
+    ${docBox('architecture',490,100,150,50)}
+    ${docBox('info-def',40,182,140,50)}
+    ${docBox('func-spec',205,182,130,50)}
+    ${docBox('api-spec',360,182,130,50)}
+    <g class="mbox"><rect x="515" y="182" width="125" height="50" rx="8" fill="#f4f3ee" stroke="#b4b2a9" stroke-width="1" stroke-dasharray="4 3"/>
+      <text class="mt" x="577" y="200" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a">実装</text>
+      <text class="ms" x="577" y="218" text-anchor="middle" dominant-baseline="central" fill="#888780">コード</text></g>
+    ${docBox('data-migration',40,268,140,50)}
+    ${docBox('quality-assurance',300,268,340,50)}
+    ${docBox('traceability',40,350,600,38)}
+    ${docBox('doc-ops-guide',40,402,600,38)}
+    ${docBox('ops-runbook',40,454,600,38)}
+    ${arrow(355,70,355,98)}
+    ${arrow(123,70,112,180)}
+    ${arrow(300,150,150,180)}
+    ${arrow(457,125,488,125)}
+    ${arrow(545,150,447,180,true)}
+    ${arrow(182,207,203,207)}
+    ${arrow(337,207,358,207)}
+    ${arrow(110,234,110,266)}
+    ${arrow(425,234,425,266)}
+  </svg></div>
+  <p class="muted" style="font-size:12px;margin:8px 2px">実線＝駆動／派生・破線＝制約（物理の前提）。下3段は横断・運用（全体にかかる）。ボックスをクリックすると本文へ。</p>`;
+
+  const cards = DOCS.map(d=>`<div class="card" onclick="openDoc('${d.id}')">
+    <div class="num">${d.num}${raw[d.id]?'':' · <span style="color:#c0392b">未読込</span>'}</div>
+    <div class="title">${d.title}</div>
+    <div class="role">${d.role}</div>
+    <div class="meta"><span class="pill g-${d.group}">${d.axis}</span></div>
+  </div>`).join('');
+
+  const threads = THREADS.map(t=>`<div class="thread"><span class="lab">${t.lab}</span>
+    <span class="path">${t.path.map(id=>`<a onclick="openDoc('${id}')">${byId[id].title}</a>`).join('<span class="arr">→</span>')}</span></div>`).join('');
+
+  document.getElementById('view-overview').innerHTML =
+    `<h2 class="section">整合性モデル</h2>${svg}`+
+    `<h2 class="section">11文書</h2><div class="cards">${cards}</div>`+
+    `<h2 class="section">フォーマット群を貫く「貫通線」</h2>${threads}`;
+}
+
+/* ---------- トレーサビリティ ---------- */
+// 要件チケットの進捗タイムライン（トレーサビリティ・マトリクスの現況を描く）
+function renderTimeline(list){
+  if(!TICKETS.length){
+    return `<p class="muted" style="font-size:13px">要件×文書のマトリクス（実データ）が読み込めませんでした。<code>${INSTANCE.file}</code> を確認してください。</p>`;
+  }
+  if(!list.length){
+    return `<p class="muted" style="font-size:13px">絞り込みに該当するチケットがありません。</p>`;
+  }
+  const sx=[176,270,364,458,552,644];        // 6層のX座標
+  const x0=8, rowH=58, gTop=58;
+  const n=list.length;
+  const rowY=i=> 84+i*rowH;
+  const gBot=rowY(n-1)+26, legendY=rowY(n-1)+52, H=legendY+16;
+  const C={art:'#534ab7', hint:'#9b9a92', line:'#d3d1c7', muted:'#6b6a64', text:'#2c2c2a', verify:'#0f6e56'};
+  const nums=['①','②','③','④','⑤','⑥'];
+
+  let guides=`<line x1="${x0}" y1="56" x2="672" y2="56" stroke="${C.line}" stroke-width="1" opacity="0.7"/>`, headers='';
+  sx.forEach((x,i)=>{
+    guides += `<line x1="${x}" y1="${gTop}" x2="${x}" y2="${gBot}" stroke="${C.line}" stroke-width="1" opacity="0.5"/>`;
+    const s=STAGES[i];
+    const t=`<text x="${x}" y="42" text-anchor="middle" font-size="12" font-weight="600" fill="${C.text}">${nums[i]}${s.label}</text>`;
+    headers += s.doc ? `<g style="cursor:pointer" onclick="openDoc('${s.doc}')"><title>${s.label}の文書を開く</title>${t}</g>` : t;
+  });
+
+  let rows='';
+  list.forEach((t,i)=>{
+    const y=rowY(i);
+    const app=[]; let lastDone=-1;
+    t.stages.forEach((s,k)=>{ if(s.st!=='na') app.push(k); if(s.st==='done') lastDone=k; });
+    let ln='';
+    for(let a=0;a<app.length-1;a++){
+      const k1=app[a], k2=app[a+1];
+      ln += (lastDone>=k2)
+        ? `<line x1="${sx[k1]}" y1="${y}" x2="${sx[k2]}" y2="${y}" stroke="${C.art}" stroke-width="2" stroke-linecap="round"/>`
+        : `<line x1="${sx[k1]}" y1="${y}" x2="${sx[k2]}" y2="${y}" stroke="${C.hint}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    }
+    let nodes='';
+    t.stages.forEach((s,k)=>{
+      const x=sx[k], doc=STAGES[k].doc;
+      if(s.st==='na'){ nodes += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="12" fill="${C.hint}">−</text>`; return; }
+      if(s.st==='done' || s.st==='doing'){
+        const c = s.st==='done'
+          ? `<circle cx="${x}" cy="${y}" r="7" fill="${C.art}"/>`
+          : `<circle cx="${x}" cy="${y}" r="6.5" fill="#fff" stroke="${C.art}" stroke-width="2"/>`;
+        const tip=`${t.id} → ${STAGES[k].label}${s.date?'（'+s.date+'）':''}${s.ref?'：'+s.ref:''}`;
+        nodes += doc ? `<g style="cursor:pointer" onclick="openDoc('${doc}')"><title>${tip}</title>${c}</g>` : `<g><title>${tip}</title>${c}</g>`;
+        if(s.date) nodes += `<text x="${x}" y="${y+20}" text-anchor="middle" font-size="11" fill="${C.muted}">${fmtDate(s.date)}</text>`;
+      }else{
+        nodes += `<circle cx="${x}" cy="${y}" r="6" fill="#fff" stroke="${C.hint}" stroke-width="1.5"/>`;
+      }
+    });
+    const stTxt = derivedStatus(t);
+    const isDone = stTxt==='完了';
+    const ttl=(t.title||'').length>9 ? t.title.slice(0,9)+'…' : (t.title||'');
+    const label=`<text x="${x0}" y="${y-6}" font-size="13" font-weight="600" fill="${C.text}">${t.id}</text>`+
+                `<text x="${x0}" y="${y+8}" font-size="11" fill="${C.muted}">${ttl}</text>`+
+                `<text x="${x0}" y="${y+22}" font-size="11" fill="${isDone?C.verify:C.hint}">${stTxt}</text>`;
+    rows += `<g>${ln}${label}${nodes}</g>`;
+  });
+
+  const legend=`<g>
+    <circle cx="14" cy="${legendY}" r="6" fill="${C.art}"/><text x="26" y="${legendY+4}" font-size="11" fill="${C.muted}">済</text>
+    <circle cx="60" cy="${legendY}" r="6" fill="#fff" stroke="${C.art}" stroke-width="2"/><text x="72" y="${legendY+4}" font-size="11" fill="${C.muted}">反映中</text>
+    <circle cx="132" cy="${legendY}" r="6" fill="#fff" stroke="${C.hint}" stroke-width="1.5"/><text x="144" y="${legendY+4}" font-size="11" fill="${C.muted}">未</text>
+    <text x="178" y="${legendY+4}" font-size="11" fill="${C.hint}">−＝対象外の層</text>
+    <text x="272" y="${legendY+4}" font-size="11" fill="${C.muted}">左の状態（〜まで済）は表から自動表示</text></g>`;
+
+  return `<div class="modelwrap"><svg viewBox="0 0 680 ${H}" width="100%" style="max-width:900px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
+    ${guides}${headers}${rows}${legend}
+  </svg></div>
+  <p class="muted" style="font-size:12px;margin:8px 2px">要件トレーサビリティのマトリクス（<code>${INSTANCE.file.split('/').pop()}</code> §2）をそのまま描画。セル「状態 日付 反映先ID」を読み取る。段階見出し・ノードのクリックで対応する文書へ。</p>`;
+}
+
+/* 進捗タイムラインの絞り込み・サマリ・自動チェック */
+let tlFilter={st:'', q:''};
+function derivedStatus(t){
+  const app=[]; let lastDone=-1;
+  t.stages.forEach((s,k)=>{ if(s.st!=='na') app.push(k); if(s.st==='done') lastDone=k; });
+  const allDone = app.length>0 && app.every(k=>t.stages[k].st==='done');
+  return allDone ? '完了' : (lastDone<0 ? '未着手' : STAGES[lastDone].label+'まで済');
+}
+function buildTlBar(){
+  const el=document.getElementById('tlbar');
+  if(!TICKETS.length){ el.innerHTML=''; return; }
+  const counts={};
+  TICKETS.forEach(t=>{ const s=derivedStatus(t); counts[s]=(counts[s]||0)+1; });
+  let h=`<span class="chip tlchip active" data-v="" onclick="setTlFilter('')">全て ${TICKETS.length}</span>`;
+  const order=['完了', ...STAGES.slice().reverse().map(s=>s.label+'まで済'), '未着手'];
+  order.forEach(s=>{ if(counts[s]) h+=`<span class="chip tlchip" data-v="${s}" onclick="setTlFilter('${s}')">${s} ${counts[s]}</span>`; });
+  h+=`<input id="tlq" placeholder="ID・タイトルで検索" oninput="tlFilter.q=this.value;updateTimeline()">`;
+  el.innerHTML=h;
+}
+function setTlFilter(v){
+  tlFilter.st = (tlFilter.st===v) ? '' : v;
+  document.querySelectorAll('.tlchip').forEach(c=>c.classList.toggle('active', c.dataset.v===tlFilter.st));
+  updateTimeline();
+}
+function updateTimeline(){
+  let list=TICKETS;
+  if(tlFilter.st) list=list.filter(t=>derivedStatus(t)===tlFilter.st);
+  if(tlFilter.q){ const q=tlFilter.q.toLowerCase(); list=list.filter(t=>(t.id+' '+(t.title||'')).toLowerCase().includes(q)); }
+  document.getElementById('tlwrap').innerHTML=renderTimeline(list);
+}
+// 表のセルどうしの軽い矛盾チェック（済の日付・層の順序・IDの重複）
+function renderChecks(){
+  const el=document.getElementById('tlcheck');
+  if(!TICKETS.length){ el.innerHTML=''; return; }
+  const warns=[]; const seen={};
+  TICKETS.forEach(t=>{
+    if(seen[t.id]) warns.push(`要件ID ${t.id} が重複しています`);
+    seen[t.id]=1;
+    let lastDone=-1; t.stages.forEach((s,k)=>{ if(s.st==='done') lastDone=k; });
+    let reported=false;
+    t.stages.forEach((s,k)=>{
+      if(s.st==='done' && !s.date) warns.push(`${t.id}：${STAGES[k].label} が「済」ですが日付がありません`);
+      if(!reported && (s.st==='todo'||s.st==='doing') && k<lastDone){
+        warns.push(`${t.id}：${STAGES[lastDone].label} が済なのに、上流の ${STAGES[k].label} が${s.st==='doing'?'反映中':'未'}です（順序を確認）`);
+        reported=true;
+      }
+    });
+  });
+  el.innerHTML = warns.length
+    ? `<b>自動チェック：</b>`+warns.map(w=>`<div class="warn">⚠ ${w}</div>`).join('')
+    : `<b>自動チェック：</b>矛盾は見つかりませんでした（済の日付・層の順序・IDの重複を確認）`;
+}
+
+function renderTrace(){
+  const threads = THREADS.map(t=>`<div class="thread"><span class="lab">${t.lab}</span>
+    <span class="path">${t.path.map(id=>`<a onclick="openDoc('${id}')">${byId[id].title}</a>`).join('<span class="arr">→</span>')}</span></div>`).join('');
+
+  // 文書間の参照マトリクス（補助）
+  let head = '<tr><th class="rowh">参照元 ＼ 参照先</th>'+DOCS.map(d=>`<th title="${d.title}">${d.num}</th>`).join('')+'</tr>';
+  let mrows = DOCS.map(s=>{
+    let tds = DOCS.map(t=>{
+      if(s.id===t.id) return '<td class="self">—</td>';
+      const c = (refEdges[s.id]||{})[t.id];
+      return c ? `<td class="hit" title="${s.title} → ${t.title}（${c}）" onclick="openDoc('${t.id}')">${c}</td>` : '<td></td>';
+    }).join('');
+    return `<tr><th class="rowh"><a onclick="openDoc('${s.id}')">${s.num} ${s.title}</a></th>${tds}</tr>`;
+  }).join('');
+  const matrix = `<div class="matrix-scroll"><table class="matrix"><thead>${head}</thead><tbody>${mrows}</tbody></table></div>
+    <p class="muted" style="font-size:12px;margin:8px 2px">セルの数字＝参照元が参照先に言及した回数。クリックで参照先へ。文書どうしの依存関係の俯瞰（チケット進捗とは別軸）。</p>`;
+
+  document.getElementById('view-trace').innerHTML =
+    `<h2 class="section">要件トレーサビリティ — 要件チケットの進捗タイムライン</h2>
+     <div class="tlbar" id="tlbar"></div>
+     <div id="tlwrap"></div>
+     <div id="tlcheck"></div>`+
+    `<h2 class="section">貫通線（値域・状態・ID・非機能の縦串）</h2>${threads}`+
+    `<h2 class="section">文書間の参照（補助）</h2>${matrix}`;
+  buildTlBar(); renderChecks(); updateTimeline();
+}
+
+/* ---------- ドキュメント ---------- */
+let currentDoc=null;
+function renderDocList(){
+  document.getElementById('doclist').innerHTML =
+    DOCS.map(d=>`<a class="item" id="dl-${d.id}" onclick="openDoc('${d.id}')">${d.num} ${d.title}</a>`).join('');
+}
+function slugify(s,i){ return 'h-'+i+'-'+s.replace(/[^\wぁ-んァ-ヶ一-龠]+/g,'-').slice(0,24); }
+function openDoc(id){
+  switchView('docs');
+  currentDoc=id;
+  DOCS.forEach(d=>document.getElementById('dl-'+d.id)?.classList.toggle('active',d.id===id));
+  const main=document.getElementById('docmain'), toc=document.getElementById('toc');
+  const md=raw[id];
+  if(!md){ main.innerHTML='<div class="loading">この文書は読み込めませんでした（ファイル未配置）。</div>'; toc.innerHTML=''; return; }
+  // 見出し抽出してアンカー付与
+  const heads=[]; let i=0;
+  const html=marked.parse(md,{mangle:false,headerIds:false});
+  main.innerHTML=html;
+  // 文書内リンク：同じフォルダの .md はビューア内で開く。別フォルダの .md は新しいタブで開く（404防止）
+  main.querySelectorAll('a[href]').forEach(a=>{
+    const href=a.getAttribute('href')||'';
+    if(!href.includes('.md')) return;
+    const fname=href.split('/').pop().split('#')[0];
+    const d = href.includes('/') ? null : DOCS.find(x=>x.file===fname);
+    if(d){ a.removeAttribute('href'); a.style.cursor='pointer'; a.onclick=()=>openDoc(d.id); }
+    else { a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
+  });
+  main.querySelectorAll('h2,h3').forEach(h=>{
+    const id2=slugify(h.textContent,i++); h.id=id2;
+    heads.push({id:id2,text:h.textContent,lv:h.tagName==='H3'?3:2});
+  });
+  toc.innerHTML='<div class="th">目次</div>'+heads.map(h=>`<a class="${h.lv===3?'h3':''}" onclick="document.getElementById('${h.id}').scrollIntoView({behavior:'smooth'})">${h.text}</a>`).join('')+refsPanel(id);
+  main.scrollIntoView({block:'start'});
+  window.scrollTo({top:0});
+}
+function refsPanel(id){
+  const out=Object.entries(refEdges[id]||{}).sort((a,b)=>b[1]-a[1]);
+  const incoming=DOCS.filter(s=> (refEdges[s.id]||{})[id]).map(s=>s.id);
+  const chip=(tid)=>`<span class="chip" onclick="openDoc('${tid}')">${byId[tid].title}</span>`;
+  let h='<div class="refs">';
+  h+='<div class="th">この文書が参照</div>'+(out.length?out.map(([t])=>chip(t)).join(''):'<span class="muted" style="font-size:12px">—</span>');
+  h+='<div class="th" style="margin-top:10px">この文書を参照</div>'+(incoming.length?incoming.map(chip).join(''):'<span class="muted" style="font-size:12px">—</span>');
+  h+='</div>';
+  return h;
+}
+
+/* ---------- ルーティング ---------- */
+function switchView(v){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id==='view-'+v));
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+loadAll();
+</script>
+</body>
+</html>
