@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/instance/library-lending/dashboard/", "permanent": false }
+  ]
+}
