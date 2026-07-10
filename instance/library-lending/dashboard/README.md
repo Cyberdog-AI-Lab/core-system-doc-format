@@ -62,4 +62,4 @@ npx serve instance/library-lending -p 4323
 
 ## 新しいプロジェクトで使う
 
-`index.html` をそのままコピーし、`manifest.json` を書くだけ（`doc-scaffold` スキルが自動でやる）。
+`index.html` をそのままコピーし、`manifest.json` を書くだけ（`kit-install` スキルが導入時に自動でやる）。

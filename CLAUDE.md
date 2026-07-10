@@ -24,7 +24,6 @@
 | 既存プロジェクトへの完全導入 | [.claude/skills/kit-install/SKILL.md](.claude/skills/kit-install/SKILL.md) | キット内で実行し**導入先はパスで受け取る**。`templates/` から機械的にコピー＋スキル配置＋CLAUDE.md 追記（上書きしない） |
 | 整合性の検査 | [.claude/skills/consistency-check/SKILL.md](.claude/skills/consistency-check/SKILL.md) | 観点A〜H・**read-only既定**・「テンプレ自身をチェックして」で自己検査モード |
 | 変更の反映 | [.claude/skills/change-propagate/SKILL.md](.claude/skills/change-propagate/SKILL.md) | 1層ずつ提案→確認が既定（「一括で」指示時のみ全適用）・反映のたびに二重記録 |
-| 文書だけの単体プロジェクト生成 | [.claude/skills/doc-scaffold/SKILL.md](.claude/skills/doc-scaffold/SKILL.md) | `templates/docs/` を使用・**内容は創作しない**（器だけ作る） |
 
 スキルとして読み込めない環境でも、上記の SKILL.md を直接読んで手順に従うこと。
 

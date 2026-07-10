@@ -19,7 +19,7 @@ git clone https://github.com/Cyberdog-AI-Lab/core-system-doc-format.git
 
 #### A. Claude Code で導入（推奨・kit-install スキル）
 
-**クローンしたキットのフォルダで** Claude Code を起動します（スキル4本は `.claude/skills/` に同梱されているので、ここで起動すればそのまま呼べます）：
+**クローンしたキットのフォルダで** Claude Code を起動します（スキルは `.claude/skills/` に同梱されているので、ここで起動すればそのまま呼べます）：
 
 ```bash
 cd core-system-doc-format
@@ -94,11 +94,10 @@ npx serve docs -p 4322
 core-system-doc-format/
 ├── README.md                ← 本ファイル
 ├── CLAUDE.md                ← Claude Code への運用指示（キット自体を触るとき用）
-├── .claude/skills/          ← 同梱スキル4本（クローンで Claude Code を起動すればそのまま呼べる）
-│   ├── kit-install/         ← 既存プロジェクトへの完全導入（本README §2-A）
+├── .claude/skills/          ← 同梱スキル3本（クローンで Claude Code を起動すればそのまま呼べる）
+│   ├── kit-install/         ← プロジェクトへの完全導入（本README §2-A）
 │   ├── consistency-check/   ← 整合性の検査（観点A〜H・read-only既定）
-│   ├── change-propagate/    ← 変更を上流→下流へ反映し記録
-│   └── doc-scaffold/        ← 文書だけの単体プロジェクトを新規生成
+│   └── change-propagate/    ← 変更を上流→下流へ反映し記録
 ├── templates/               ← 導入用テンプレート（docs スケルトン12本・manifest・CLAUDE追記節）
 ├── formats/                 ← 12フォーマットの正（索引＝formats/README.md）
 ├── dashboard/               ← 俯瞰ダッシュボード（index.html は全プロジェクト共通・編集不要）
