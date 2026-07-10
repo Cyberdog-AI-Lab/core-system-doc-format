@@ -9,11 +9,12 @@
 
 ```
 library-lending/
+├── .claude/skills/
+│   ├── consistency-check/  ← 整合性チェックskill（検査対象＝docs/）
+│   └── change-propagate/   ← 変更反映skill（要件→下流への反映とトレサビ更新）
 ├── docs/               ← ★このプロジェクトの実文書（フォーマットに沿って記述した12本）
 ├── formats/            ← 採用した記載フォーマット（テンプレートからのコピー＝標準）
 ├── dashboard/          ← 俯瞰ダッシュボード（index.html は共通・manifest.json が docs/ を指す）
-├── consistency-check/  ← 整合性チェックskill（検査対象＝docs/）
-├── change-propagate/   ← 変更反映skill（要件→下流への反映とトレサビ更新）
 └── README.md           ← 本ファイル
 ```
 

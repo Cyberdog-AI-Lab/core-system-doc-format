@@ -12,6 +12,9 @@ description: >
 クローンした本キットから、**既存のプロジェクトリポジトリ**へ一式を導入する。
 コピーは `templates/` を使った機械的な作業、AIがやるのはシステム名の差し込みと CLAUDE.md の追記だけ。**内容の創作はしない**。
 
+> **実行場所はキットのクローン内**（本スキルは `.claude/skills/` に同梱されているので、クローンで Claude Code を起動すればそのまま呼べる）。導入先プロジェクトは**パスで受け取る**：
+> `/kit-install ~/path/to/your-project に導入して`
+>
 > 文書だけの単体プロジェクトを新規に作りたい場合は doc-scaffold。本スキルは「開発リポジトリへの組み込み」用。
 
 ## 導入されるもの（対象プロジェクト内の配置）
@@ -33,12 +36,13 @@ description: >
 
 ## 進め方
 
-### 1. ヒアリング（最大4問。自明なものは聞かない）
+### 1. ヒアリング（最大3問。自明なものは聞かない）
 
-1. **キットのクローンパス**（この会話がキット内で始まっていればそこ）
-2. **対象プロジェクトのルート**（カレントが対象ならそれ）
-3. **システム名**（例：在庫管理システム）→ 各文書の `{システム名}` に差し込む
-4. **文書フォルダ名**（既定 `docs/`。既存の docs/ が使用中なら `docs/system/` 等を提案）
+- **KIT（キットのルート）**＝本スキルが同梱されているこのリポジトリ（通常はカレント）。これは聞かない。
+
+1. **対象プロジェクトのルート**（頼まれたときにパスが添えられていればそれ。無ければ聞く）
+2. **システム名**（例：在庫管理システム）→ 各文書の `{システム名}` に差し込む
+3. **文書フォルダ名**（既定 `docs/`。既存の docs/ が使用中なら `docs/system/` 等を提案）
 
 ### 2. 事前チェック（壊さないため）
 
@@ -49,14 +53,14 @@ description: >
 ### 3. コピー（機械的に）
 
 ```bash
-KIT={クローンパス}; DST={対象ルート}; DOCS={docsDir}
+KIT={キットのルート＝このリポジトリ}; DST={対象プロジェクトのルート}; DOCS={docsDir}
 
 mkdir -p "$DST/$DOCS/dashboard" "$DST/.claude/skills"
 cp "$KIT"/templates/docs/*.md   "$DST/$DOCS/"
 cp -r "$KIT/formats"            "$DST/$DOCS/formats"
 cp "$KIT/dashboard/index.html"  "$DST/$DOCS/dashboard/"
 cp "$KIT/templates/manifest.json" "$DST/$DOCS/dashboard/manifest.json"
-cp -r "$KIT/consistency-check" "$KIT/change-propagate" "$DST/.claude/skills/"
+cp -r "$KIT/.claude/skills/consistency-check" "$KIT/.claude/skills/change-propagate" "$DST/.claude/skills/"
 ```
 
 ### 4. 差し込み（AIの仕事はここだけ）

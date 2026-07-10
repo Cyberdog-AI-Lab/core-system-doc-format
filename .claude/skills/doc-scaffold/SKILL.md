@@ -29,11 +29,12 @@ description: >
 
 ```
 {project}/
+├── .claude/skills/
+│   ├── consistency-check/  ← 整合性チェックskill のコピー（キットの .claude/skills/ から）
+│   └── change-propagate/   ← 変更反映skill のコピー
 ├── docs/               ← 12文書のスケルトン（★これから埋める本体）
 ├── formats/            ← 記載フォーマット一式のコピー（このプロジェクトの標準）
 ├── dashboard/          ← 俯瞰ダッシュボード（index.html＋manifest.json）
-├── consistency-check/  ← 整合性チェックskill のコピー
-├── change-propagate/   ← 変更反映skill のコピー
 ├── CLAUDE.md           ← AI向けの運用指示（instance/library-lending/CLAUDE.md を基にシステム名を調整）
 └── README.md           ← 構成と起動方法
 ```

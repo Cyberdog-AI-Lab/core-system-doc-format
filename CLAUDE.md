@@ -17,14 +17,16 @@
 - **廃止・取り下げは消さない**。状態と経緯（取り下げコンテキスト）で残し、IDは欠番にしない
 - プラットフォーム固有の製品名は物理層（アーキ§3・情報定義§5）だけ。他は概念で書く
 
-## スキル（`.claude/skills` 未導入でも、以下のファイルを読んで手順に従うこと）
+## スキル（`.claude/skills/` に同梱＝このリポジトリで起動すればそのまま呼べる）
 
 | やること | 従うファイル | 要点 |
 |---|---|---|
-| 既存プロジェクトへの完全導入 | [kit-install/SKILL.md](kit-install/SKILL.md) | `templates/` から機械的にコピー＋スキルを `.claude/skills/` へ配置＋CLAUDE.md 追記（上書きしない） |
-| 整合性の検査 | [consistency-check/SKILL.md](consistency-check/SKILL.md) | 観点A〜H・**read-only既定**・「テンプレ自身をチェックして」で自己検査モード |
-| 変更の反映 | [change-propagate/SKILL.md](change-propagate/SKILL.md) | 1層ずつ提案→確認が既定（「一括で」指示時のみ全適用）・反映のたびに二重記録 |
-| 文書だけの単体プロジェクト生成 | [doc-scaffold/SKILL.md](doc-scaffold/SKILL.md) | `templates/docs/` を使用・**内容は創作しない**（器だけ作る） |
+| 既存プロジェクトへの完全導入 | [.claude/skills/kit-install/SKILL.md](.claude/skills/kit-install/SKILL.md) | キット内で実行し**導入先はパスで受け取る**。`templates/` から機械的にコピー＋スキル配置＋CLAUDE.md 追記（上書きしない） |
+| 整合性の検査 | [.claude/skills/consistency-check/SKILL.md](.claude/skills/consistency-check/SKILL.md) | 観点A〜H・**read-only既定**・「テンプレ自身をチェックして」で自己検査モード |
+| 変更の反映 | [.claude/skills/change-propagate/SKILL.md](.claude/skills/change-propagate/SKILL.md) | 1層ずつ提案→確認が既定（「一括で」指示時のみ全適用）・反映のたびに二重記録 |
+| 文書だけの単体プロジェクト生成 | [.claude/skills/doc-scaffold/SKILL.md](.claude/skills/doc-scaffold/SKILL.md) | `templates/docs/` を使用・**内容は創作しない**（器だけ作る） |
+
+スキルとして読み込めない環境でも、上記の SKILL.md を直接読んで手順に従うこと。
 
 ## ダッシュボード
 

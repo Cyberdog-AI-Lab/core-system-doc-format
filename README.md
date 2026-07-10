@@ -19,13 +19,22 @@ git clone https://github.com/Cyberdog-AI-Lab/core-system-doc-format.git
 
 #### A. Claude Code で導入（推奨・kit-install スキル）
 
-対象プロジェクトのルートで Claude Code を起動し、こう頼むだけです：
+**クローンしたキットのフォルダで** Claude Code を起動します（スキル4本は `.claude/skills/` に同梱されているので、ここで起動すればそのまま呼べます）：
+
+```bash
+cd core-system-doc-format
+claude
+```
+
+導入先プロジェクトの**パスを添えて**頼みます：
 
 ```
-{クローンした場所}/core-system-doc-format をこのプロジェクトに導入して
+/kit-install ~/path/to/your-project に導入して
 ```
 
-kit-install スキルが、質問（システム名など最大4問）のあとに以下を全部セットアップします：
+（スラッシュコマンドを使わず「`~/path/to/your-project` にこのキットを導入して」でも同じです）
+
+kit-install スキルが、質問（システム名など最大3問）のあとに、**導入先プロジェクトに**以下を全部セットアップします：
 
 ```
 {あなたのプロジェクト}/
@@ -52,7 +61,7 @@ cp "$KIT"/templates/docs/*.md    "$DST/$DOCS/"
 cp -r "$KIT/formats"             "$DST/$DOCS/formats"
 cp "$KIT/dashboard/index.html"   "$DST/$DOCS/dashboard/"
 cp "$KIT/templates/manifest.json" "$DST/$DOCS/dashboard/manifest.json"
-cp -r "$KIT/consistency-check" "$KIT/change-propagate" "$DST/.claude/skills/"
+cp -r "$KIT/.claude/skills/consistency-check" "$KIT/.claude/skills/change-propagate" "$DST/.claude/skills/"
 ```
 
 最後に、コピーしたファイル内の `{システム名}` を自分のシステム名に置換してください（docs/*.md と manifest.json）。
@@ -83,17 +92,18 @@ npx serve docs -p 4322
 
 ```
 core-system-doc-format/
-├── README.md            ← 本ファイル
-├── CLAUDE.md            ← Claude Code への運用指示（キット自体を触るとき用）
-├── templates/           ← 導入用テンプレート（docs スケルトン12本・manifest・CLAUDE追記節）
-├── formats/             ← 12フォーマットの正（索引＝formats/README.md）
-├── kit-install/         ← スキル：既存プロジェクトへの完全導入（本README §2-A）
-├── consistency-check/   ← スキル：整合性の検査（観点A〜H・read-only既定）
-├── change-propagate/    ← スキル：変更を上流→下流へ反映し記録
-├── doc-scaffold/        ← スキル：文書だけの単体プロジェクトを新規生成
-├── dashboard/           ← 俯瞰ダッシュボード（index.html は全プロジェクト共通・編集不要）
+├── README.md                ← 本ファイル
+├── CLAUDE.md                ← Claude Code への運用指示（キット自体を触るとき用）
+├── .claude/skills/          ← 同梱スキル4本（クローンで Claude Code を起動すればそのまま呼べる）
+│   ├── kit-install/         ← 既存プロジェクトへの完全導入（本README §2-A）
+│   ├── consistency-check/   ← 整合性の検査（観点A〜H・read-only既定）
+│   ├── change-propagate/    ← 変更を上流→下流へ反映し記録
+│   └── doc-scaffold/        ← 文書だけの単体プロジェクトを新規生成
+├── templates/               ← 導入用テンプレート（docs スケルトン12本・manifest・CLAUDE追記節）
+├── formats/                 ← 12フォーマットの正（索引＝formats/README.md）
+├── dashboard/               ← 俯瞰ダッシュボード（index.html は全プロジェクト共通・編集不要）
 └── instance/
-    └── library-lending/ ← 動くサンプル（図書貸出）
+    └── library-lending/     ← 動くサンプル（図書貸出。導入後と同じ構造）
 ```
 
 ## 12文書
