@@ -1,75 +1,100 @@
 # core-system-doc-format
 
 基幹システム開発の**ドキュメント体系テンプレート**。
-12種類の記載フォーマット＋整合性を維持するAIスキル3本＋進捗が見える俯瞰ダッシュボード＋動くサンプル1式。
+12種類の記載フォーマット＋整合性を維持するAIスキル＋進捗が見える俯瞰ダッシュボードを、**あなたのプロジェクトリポジトリへ一式導入**して使います。
 
-## これは何？
+> ドキュメントの問題は「書けない」ことではなく「**変更に追従できない**」こと。
+> このキットは、維持を **AI主体**（人はレビューと承認）で回す前提で設計されています。
+> 実証：サンプルを人手で書いたら不整合が11件混入 → AIチェックが全件検出＋人手の見落とし6件を追加検出 → 修正・再検証まで一周済み。
 
-システム開発のドキュメントは「書くこと」より「**整合を保ち続けること**」が難しい。
-要件を変えたのに仕様書が古いまま、用語がファイルごとにブレる、どの要件がどこまで進んだか分からない——。
+## 導入手順（メイン）
 
-このテンプレートは、その維持を **AI主体**で回す前提で設計したドキュメント体系です。
+### 1. このキットをクローンする
 
-- **12フォーマット**が「要件 → 情報定義 → 機能仕様 → API仕様 → 実装 → 品質保証」の整合性チェーンと、4本の貫通線（値域・状態・トレーサビリティID・非機能）で互いに繋がる
-- **スキル3本**（生成／変更反映／整合検査）が、人手では破綻する整合維持を肩代わりする
-- **ダッシュボード**が、要件ごとの進捗（どの文書まで反映されたか）をトレーサビリティ文書から自動で描く
+```bash
+git clone https://github.com/Cyberdog-AI-Lab/core-system-doc-format.git
+```
 
-> 実証：このテンプレ自身とサンプルを人手で書いたところ、自然に不整合が計11件混入した。
-> consistency-check スキルの実走は温存した不整合を**全件検出**し、さらに人手評価の見落とし6件を追加検出。
-> 修正→再検査のループまで一周済み（経緯は開発リポジトリの研究ログ参照）。
+### 2. 対象プロジェクトへ導入する
 
-## 構成
+#### A. Claude Code で導入（推奨・kit-install スキル）
+
+対象プロジェクトのルートで Claude Code を起動し、こう頼むだけです：
+
+```
+{クローンした場所}/core-system-doc-format をこのプロジェクトに導入して
+```
+
+kit-install スキルが、質問（システム名など最大4問）のあとに以下を全部セットアップします：
+
+```
+{あなたのプロジェクト}/
+├── .claude/skills/
+│   ├── consistency-check/   ← 整合検査スキル（「整合性をチェックして」で起動）
+│   └── change-propagate/    ← 変更反映スキル（「この要件を反映して」で起動）
+├── CLAUDE.md                ← 運用ルールを追記（既存があれば末尾に追記・上書きしない）
+└── docs/                    ← 文書一式はこのフォルダに閉じる
+    ├── 01-concept.md 〜 12-ops-runbook.md   ← スケルトン12本（これから埋める本体）
+    ├── formats/             ← 記載標準（書き方・スケルトン・ルールの原本）
+    ├── dashboard/           ← 俯瞰ダッシュボード（index.html＋manifest.json）
+    └── README.md            ← 導入内容と使い方
+```
+
+#### B. 手動で導入（コピーするだけ）
+
+```bash
+KIT=./core-system-doc-format   # クローンした場所
+DST=.                          # あなたのプロジェクトのルート
+DOCS=docs                      # 文書フォルダ名（好みで変更可）
+
+mkdir -p "$DST/$DOCS/dashboard" "$DST/.claude/skills"
+cp "$KIT"/templates/docs/*.md    "$DST/$DOCS/"
+cp -r "$KIT/formats"             "$DST/$DOCS/formats"
+cp "$KIT/dashboard/index.html"   "$DST/$DOCS/dashboard/"
+cp "$KIT/templates/manifest.json" "$DST/$DOCS/dashboard/manifest.json"
+cp -r "$KIT/consistency-check" "$KIT/change-propagate" "$DST/.claude/skills/"
+```
+
+最後に、コピーしたファイル内の `{システム名}` を自分のシステム名に置換してください（docs/*.md と manifest.json）。
+CLAUDE.md への運用ルール追記は `templates/CLAUDE-section.md` の内容を使えます。
+
+### 3. 使い始める
+
+```bash
+npx serve docs -p 4322
+# → http://localhost:4322/dashboard/ （最初は12本の空スケルトンが見える）
+```
+
+- **書く順序**：構想・用語集 → 要件 → アーキテクチャ → 情報定義 → 機能仕様 → API仕様 →（実装）→ 品質保証 → データ移行 → 運用ランブック（詳細：[formats/11-doc-ops-guide.md](formats/11-doc-ops-guide.md) §4）
+- **変更するとき**：Claude Code に「**この要件を反映して**」→ 上流→下流に反映し、トレーサビリティへ自動記録
+- **点検するとき**：「**ドキュメントの整合性をチェックして**」→ 8つの観点で検査（read-only）
+- 要件を起票してトレーサビリティ（10）の表に行を足すと、ダッシュボードに**進捗タイムライン**が現れます
+
+## サンプルを見る（導入後の姿）
+
+図書館の貸出システムを題材に、12文書を実際に埋めたサンプルを同梱しています。
+
+- **オンラインデモ**：https://core-system-doc-format.vercel.app/
+- ローカルで見る：`npx serve instance/library-lending -p 4323` → `http://localhost:4323/dashboard/`
+
+要件11件の進捗タイムライン・自動チェック・保留チケット（取り下げも資産として残る）まで、運用イメージがそのまま見えます。
+
+## キットの構成
 
 ```
 core-system-doc-format/
-├── README.md            ← 本ファイル（入口）
-├── CLAUDE.md            ← Claude Code への運用指示（AIがここから運用ルールを読む）
+├── README.md            ← 本ファイル
+├── CLAUDE.md            ← Claude Code への運用指示（キット自体を触るとき用）
+├── templates/           ← 導入用テンプレート（docs スケルトン12本・manifest・CLAUDE追記節）
 ├── formats/             ← 12フォーマットの正（索引＝formats/README.md）
-├── consistency-check/   ← スキル②：整合性の検査（観点A〜H・read-only既定）
-├── change-propagate/    ← スキル①：変更を上流→下流へ反映し記録
-├── doc-scaffold/        ← スキル③：新プロジェクトの文書一式を生成
-├── dashboard/           ← 俯瞰ダッシュボード（index.html は共通・manifest.json が設定）
+├── kit-install/         ← スキル：既存プロジェクトへの完全導入（本README §2-A）
+├── consistency-check/   ← スキル：整合性の検査（観点A〜H・read-only既定）
+├── change-propagate/    ← スキル：変更を上流→下流へ反映し記録
+├── doc-scaffold/        ← スキル：文書だけの単体プロジェクトを新規生成
+├── dashboard/           ← 俯瞰ダッシュボード（index.html は全プロジェクト共通・編集不要）
 └── instance/
-    └── library-lending/ ← 動くサンプル（図書貸出）。docs/ に実文書12本
+    └── library-lending/ ← 動くサンプル（図書貸出）
 ```
-
-## クイックスタート
-
-### 1. まずサンプルを見る（5分）
-
-```bash
-npx serve instance/library-lending -p 4323
-# → http://localhost:4323/dashboard/
-```
-
-図書貸出システムの実文書12本と、要件11件の進捗タイムライン（どの文書まで反映されたか・自動チェックつき）が見えます。
-
-### 2. 自分のプロジェクトを立ち上げる
-
-Claude Code に「**新しいプロジェクトの文書一式を作って**」と頼む（doc-scaffold スキル）。
-手動でやる場合：`formats/` と `dashboard/index.html` をコピーし、`dashboard/manifest.json` を自分のプロジェクト用に書くだけ（index.html は編集不要）。
-
-### 3. 書く順序
-
-構想・用語集 → 要件 → アーキテクチャ → 情報定義 → 機能仕様 → API仕様 →（実装）→ 品質保証 → データ移行 → 運用ランブック
-（詳細：[formats/11-doc-ops-guide.md](formats/11-doc-ops-guide.md) §4）
-
-### 4. 維持する
-
-- 変更したい：「**この要件を反映して**」（change-propagate が上流→下流に反映し、トレーサビリティへ記録）
-- 点検したい：「**ドキュメントの整合性をチェックして**」（consistency-check が観点A〜Hで検査）
-
-## スキルの導入手順
-
-自分のプロジェクトで Claude Code のスキルとして使う場合：
-
-```bash
-mkdir -p .claude/skills
-cp -r consistency-check change-propagate doc-scaffold .claude/skills/
-```
-
-以後、「整合性をチェックして」「この要件を反映して」などのフレーズで自動起動します。
-**導入しなくても動きます**：このリポジトリ内では [CLAUDE.md](CLAUDE.md) が各 `SKILL.md` を直接読むよう Claude に指示しています。
 
 ## 12文書
 
@@ -79,7 +104,7 @@ cp -r consistency-check change-propagate doc-scaffold .claude/skills/
 | 02 | 用語集 | 語彙と値仕様の唯一の源 |
 | 03 | 要件 | 検証可能な単位のチケット（トレーサビリティの起点） |
 | 04 | システムアーキテクチャ | 基盤・非機能の実現（ADR含む） |
-| 05 | 情報定義 | 全仕様の源流（論理／物理・バリデーション） |
+| 05 | 情報定義 | 全仕様の源流（エンティティ・論理／物理・バリデーション） |
 | 06 | 機能仕様 | 画面・バッチ・状態遷移＋実装標準 |
 | 07 | API仕様 | I/F（型）＋内部処理フロー |
 | 08 | 品質保証 | 検証記録の蓄積（何が保証できたか） |
@@ -88,7 +113,7 @@ cp -r consistency-check change-propagate doc-scaffold .claude/skills/
 | 11 | 運用プロセスガイド | 文書メンテのルールブック（AI主体） |
 | 12 | 運用ランブック | システム運用の手順＋リリース台帳 |
 
-詳細な索引・整合性モデル・貫通線は [formats/README.md](formats/README.md)。
+詳細な索引・整合性モデル・4本の貫通線は [formats/README.md](formats/README.md)。
 
 ## 思想（3行）
 
@@ -99,4 +124,4 @@ cp -r consistency-check change-propagate doc-scaffold .claude/skills/
 ## ステータス
 
 公開済み（初版）。ライセンスは近日確定します（確定までは All rights reserved の扱い）。
-今後：Hooks による自動化（コミット時の整合チェック）／第三者環境での再実走。
+今後：実案件での運用検証／Hooks による自動化（コミット時の整合チェック）／第三者環境での再実走。

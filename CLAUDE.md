@@ -21,9 +21,10 @@
 
 | やること | 従うファイル | 要点 |
 |---|---|---|
+| 既存プロジェクトへの完全導入 | [kit-install/SKILL.md](kit-install/SKILL.md) | `templates/` から機械的にコピー＋スキルを `.claude/skills/` へ配置＋CLAUDE.md 追記（上書きしない） |
 | 整合性の検査 | [consistency-check/SKILL.md](consistency-check/SKILL.md) | 観点A〜H・**read-only既定**・「テンプレ自身をチェックして」で自己検査モード |
 | 変更の反映 | [change-propagate/SKILL.md](change-propagate/SKILL.md) | 1層ずつ提案→確認が既定（「一括で」指示時のみ全適用）・反映のたびに二重記録 |
-| 新規立ち上げ | [doc-scaffold/SKILL.md](doc-scaffold/SKILL.md) | ヒアリング3問・**内容は創作しない**（器だけ作る） |
+| 文書だけの単体プロジェクト生成 | [doc-scaffold/SKILL.md](doc-scaffold/SKILL.md) | `templates/docs/` を使用・**内容は創作しない**（器だけ作る） |
 
 ## ダッシュボード
 
@@ -34,6 +35,7 @@
 ## フォルダの役割と同期
 
 - `formats/` … 12フォーマットの**正**（single source of truth）
+- `templates/` … 導入用テンプレート（docs スケルトン12本・manifest.json・CLAUDE追記節）。**フォーマットの章立てを変えたら、対応するスケルトンも必ず追従させる**
 - `instance/library-lending/` … 動くサンプル。`docs/` が実文書、`formats/` は標準のコピー
 - **テンプレのフォーマットを変更したら**：①`instance/library-lending/formats/` へ cp で同期 ②consistency-check の「テンプレ自身をチェックして」を実行（文書数・貫通線・観点対応のドリフト検出）
 
