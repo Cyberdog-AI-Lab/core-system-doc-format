@@ -267,41 +267,50 @@ function renderOverview(){
   byId['info-def'].roleShort='源流';
   byId['func-spec'].roleShort='機能';
   byId['api-spec'].roleShort='I/F';
-  byId['quality-assurance'].roleShort='横の保証';
+  byId['quality-assurance'].roleShort='2系統で検証（要件視点＋成果物視点）';
   byId['data-migration'].roleShort='随伴';
   byId['traceability'].roleShort='全改訂を一元記録';
   byId['doc-ops-guide'].roleShort='AI主体で統制';
   byId['ops-runbook'].roleShort='運用手順・リリース台帳';
   const svg = `
-  <div class="modelwrap"><svg viewBox="0 0 680 522" width="100%" style="max-width:760px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
+  <div class="modelwrap"><svg viewBox="0 0 680 566" width="100%" style="max-width:760px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">
     <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M2 1L8 5L2 9" fill="none" stroke="#9b9a92" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
     ${docBox('glossary',40,20,170,50)}
     ${docBox('concept',255,20,200,50)}
     ${docBox('requirement',255,100,200,50)}
     ${docBox('architecture',490,100,150,50)}
-    ${docBox('info-def',40,182,140,50)}
-    ${docBox('func-spec',205,182,130,50)}
-    ${docBox('api-spec',360,182,130,50)}
-    <g class="mbox"><rect x="515" y="182" width="125" height="50" rx="8" fill="#f4f3ee" stroke="#b4b2a9" stroke-width="1" stroke-dasharray="4 3"/>
-      <text class="mt" x="577" y="200" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a">実装</text>
-      <text class="ms" x="577" y="218" text-anchor="middle" dominant-baseline="central" fill="#888780">コード</text></g>
-    ${docBox('data-migration',40,268,140,50)}
-    ${docBox('quality-assurance',300,268,340,50)}
-    ${docBox('traceability',40,350,600,38)}
-    ${docBox('doc-ops-guide',40,402,600,38)}
-    ${docBox('ops-runbook',40,454,600,38)}
-    ${arrow(355,70,355,98)}
-    ${arrow(123,70,112,180)}
-    ${arrow(300,150,150,180)}
+    <rect x="214" y="168" width="264" height="68" rx="10" fill="none" stroke="#b4b2a9" stroke-width="1" stroke-dasharray="4 3"/>
+    ${docBox('info-def',40,180,140,44)}
+    ${docBox('func-spec',222,180,118,44)}
+    ${docBox('api-spec',352,180,118,44)}
+    <g class="mbox"><rect x="490" y="180" width="150" height="44" rx="8" fill="#f4f3ee" stroke="#b4b2a9" stroke-width="1" stroke-dasharray="4 3"/>
+      <text class="mt" x="565" y="195" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a">実装</text>
+      <text class="ms" x="565" y="211" text-anchor="middle" dominant-baseline="central" fill="#888780">コード</text></g>
+    ${docBox('data-migration',40,238,140,44)}
+    ${docBox('quality-assurance',40,330,600,54)}
+    ${docBox('traceability',40,404,600,38)}
+    ${docBox('doc-ops-guide',40,456,600,38)}
+    ${docBox('ops-runbook',40,508,600,38)}
+    ${arrow(355,72,355,98)}
+    ${arrow(123,72,110,178)}
+    ${arrow(280,152,140,178)}
     ${arrow(457,125,488,125)}
-    ${arrow(545,150,447,180,true)}
-    ${arrow(182,207,203,207)}
-    ${arrow(337,207,358,207)}
-    ${arrow(110,234,110,266)}
-    ${arrow(425,234,425,266)}
+    ${arrow(505,152,450,178,true)}
+    ${arrow(182,202,220,202)}
+    ${arrow(342,202,350,202)}
+    ${arrow(472,202,488,202)}
+    <path d="M281 178 L281 160 L540 160 L540 176" fill="none" stroke="#9b9a92" stroke-width="1.2" marker-end="url(#ar)"/>
+    ${arrow(565,152,565,178)}
+    ${arrow(110,226,110,236)}
+    <path d="M265 152 L204 170 L204 326" fill="none" stroke="#9b9a92" stroke-width="1.2" marker-end="url(#ar)"/>
+    <path d="M170 226 L192 240 L192 326" fill="none" stroke="#9b9a92" stroke-width="1.2" marker-end="url(#ar)"/>
+    <path d="M281 226 L281 326" fill="none" stroke="#9b9a92" stroke-width="1.2" marker-end="url(#ar)"/>
+    <path d="M411 226 L411 326" fill="none" stroke="#9b9a92" stroke-width="1.2" marker-end="url(#ar)"/>
+    <text x="204" y="322" text-anchor="middle" font-size="10" fill="#888780">要件視点</text>
+    <text x="346" y="322" text-anchor="middle" font-size="10" fill="#888780">成果物視点</text>
   </svg></div>
-  <p class="muted" style="font-size:12px;margin:8px 2px">実線＝駆動／派生・破線＝制約（物理の前提）。下3段は横断・運用（全体にかかる）。ボックスをクリックすると本文へ。</p>`;
+  <p class="muted" style="font-size:12px;margin:8px 2px">実線＝流れ・破線＝制約（物理の前提）。点線の枠＝機能ドキュメント（機能仕様・API仕様）。実装へは機能仕様・API仕様・アーキテクチャが流れ込み、品質保証へは「要件視点（要件）」と「成果物視点（情報定義・機能仕様・API仕様）」の2系統が入る。下3段は横断・運用。ボックスをクリックすると本文へ。</p>`;
 
   const cards = DOCS.map(d=>`<div class="card" onclick="openDoc('${d.id}')">
     <div class="num">${d.num}${raw[d.id]?'':' · <span style="color:#c0392b">未読込</span>'}</div>
