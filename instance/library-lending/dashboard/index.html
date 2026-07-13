@@ -240,9 +240,9 @@ function computeRefs(){
     let txt = raw[d.id]; if(!txt) continue;
     // 長い別名から順に、検出済みは伏字化して二重カウント防止
     for(const [dst,names] of ALIASES){
-      if(dst===d.id) { for(const n of names){ txt = txt.split(n).join(' '.repeat(n.length)); } continue; }
+      if(dst===d.id) { for(const n of names){ txt = txt.split(n).join(' '.repeat(n.length)); } continue; }
       let c=0;
-      for(const n of names){ const parts = txt.split(n); c += parts.length-1; txt = parts.join(' '.repeat(n.length)); }
+      for(const n of names){ const parts = txt.split(n); c += parts.length-1; txt = parts.join(' '.repeat(n.length)); }
       if(c>0) refEdges[d.id][dst] = c;
     }
   }
