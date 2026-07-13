@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>基幹システム ドキュメント体系ダッシュボード</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <style>
   :root{
     --bg:#faf9f6; --surface:#fff; --line:#e7e4dc; --line2:#d3d1c7;
@@ -117,6 +118,8 @@
   .md pre{background:#f7f5ef;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto}
   .md pre code{background:none;padding:0;font-size:12.5px}
   .md blockquote{border-left:3px solid var(--line2);margin:10px 0;padding:2px 14px;color:var(--muted)}
+  .mermaid-fig{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;margin:10px 0;overflow-x:auto;text-align:center}
+  .mermaid-fig svg{max-width:100%;height:auto}
   .loading{color:var(--muted);padding:40px;text-align:center}
   @media(max-width:900px){.docgrid{grid-template-columns:1fr}.doclist,.toc{position:static}}
 </style>
@@ -509,6 +512,7 @@ function openDoc(id){
     if(d){ a.removeAttribute('href'); a.style.cursor='pointer'; a.onclick=()=>openDoc(d.id); }
     else { a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
   });
+  renderMermaid(main);
   main.querySelectorAll('h2,h3').forEach(h=>{
     const id2=slugify(h.textContent,i++); h.id=id2;
     heads.push({id:id2,text:h.textContent,lv:h.tagName==='H3'?3:2});
@@ -533,6 +537,25 @@ function switchView(v){
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id==='view-'+v));
 }
+// Mermaid コードブロックをフロー図として描画（描画に失敗したブロックはコードのまま残す）
+async function renderMermaid(root){
+  if(!window.mermaid) return;
+  const codes=[...root.querySelectorAll('pre > code.language-mermaid')];
+  for(const code of codes){
+    const src=code.textContent;
+    const fig=document.createElement('div');
+    fig.className='mermaid-fig';
+    const el=document.createElement('pre');
+    el.className='mermaid';
+    el.textContent=src;
+    fig.appendChild(el);
+    code.parentElement.replaceWith(fig);
+    try{ await mermaid.run({nodes:[el]}); }
+    catch(e){ fig.innerHTML='<pre><code></code></pre>'; fig.querySelector('code').textContent=src; }
+  }
+}
+if(window.mermaid){ mermaid.initialize({startOnLoad:false, theme:'neutral', themeVariables:{fontFamily:'system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif'}}); }
+
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 loadAll();
 </script>
