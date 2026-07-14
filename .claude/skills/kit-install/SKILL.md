@@ -26,7 +26,7 @@ description: >
 │   └── change-propagate/    ← 変更反映（「この要件を反映して」で起動）
 ├── CLAUDE.md                ← 運用ルールの節を追記（無ければ新規作成）
 └── {docsDir}/               ← 既定 docs/。キットはこのフォルダに閉じる
-    ├── 01-concept.md 〜 12-ops-runbook.md   ← スケルトン12本（★これから埋める本体）
+    ├── 01-concept.md 〜 12-doc-ops-guide.md   ← スケルトン12本（★これから埋める本体）
     ├── formats/             ← 記載標準（キットの写し。変更しない）
     ├── dashboard/
     │   ├── index.html       ← 共通・無編集
@@ -79,7 +79,7 @@ cp -r "$KIT/.claude/skills/consistency-check" "$KIT/.claude/skills/change-propag
 
 ### 6. 完了報告と次の一歩
 
-- 導入されたものの一覧と、**書く順序**を案内：構想・用語集 → 要件 → アーキ → 情報定義 → 機能仕様 → API仕様 →（実装）→ 品質保証 → データ移行 → 運用ランブック
+- 導入されたものの一覧と、**書く順序**を案内：構想・用語集 → 要件 → アーキ → 情報定義 → 機能仕様 → API仕様 →（実装）→ 品質保証 → データ移行 → システム維持保守ランブック
 - 以後の運用：変更は「この要件を反映して」（change-propagate）／点検は「整合性をチェックして」（consistency-check）
 - コミットは**ユーザーに委ねる**（導入内容を確認してもらってから）
 

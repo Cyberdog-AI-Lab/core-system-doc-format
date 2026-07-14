@@ -99,21 +99,21 @@
       "group": "cross"
     },
     {
-      "id": "doc-ops-guide",
-      "file": "11-doc-ops-guide.md",
+      "id": "ops-runbook",
+      "file": "11-ops-runbook.md",
       "num": "11",
-      "title": "ドキュメント運用プロセスガイド",
-      "role": "AI主体で維持・整合性を統制",
-      "axis": "横断・メタ",
+      "title": "システム維持保守ランブック",
+      "role": "システム運用の手順＋リリース台帳",
+      "axis": "運用",
       "group": "cross"
     },
     {
-      "id": "ops-runbook",
-      "file": "12-ops-runbook.md",
+      "id": "doc-ops-guide",
+      "file": "12-doc-ops-guide.md",
       "num": "12",
-      "title": "運用ランブック",
-      "role": "システム運用の手順＋リリース台帳",
-      "axis": "運用",
+      "title": "ドキュメント運用プロセスガイド",
+      "role": "AI主体で維持・整合性を統制",
+      "axis": "横断・メタ",
       "group": "cross"
     }
   ],
@@ -129,6 +129,7 @@
     [
       "ops-runbook",
       [
+        "システム維持保守ランブック",
         "運用ランブック",
         "ランブック",
         "リリース台帳"

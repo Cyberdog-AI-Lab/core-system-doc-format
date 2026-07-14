@@ -15,12 +15,12 @@
     { "id": "quality-assurance", "file": "08-quality-assurance.md", "num": "08", "title": "品質保証",                       "role": "検証記録の蓄積",                 "axis": "横の保証",   "group": "verify" },
     { "id": "data-migration",    "file": "09-data-migration.md",    "num": "09", "title": "データ移行",                     "role": "初回＋随伴の移行台帳",           "axis": "データ",     "group": "verify" },
     { "id": "traceability",      "file": "10-traceability.md",      "num": "10", "title": "要件トレーサビリティ",           "role": "全改訂を要件駆動で一元記録",     "axis": "横断",       "group": "cross" },
-    { "id": "doc-ops-guide",     "file": "11-doc-ops-guide.md",     "num": "11", "title": "ドキュメント運用プロセスガイド", "role": "AI主体で維持・整合性を統制",     "axis": "横断・メタ", "group": "cross" },
-    { "id": "ops-runbook",       "file": "12-ops-runbook.md",       "num": "12", "title": "運用ランブック",                 "role": "システム運用の手順＋リリース台帳", "axis": "運用",     "group": "cross" }
+    { "id": "ops-runbook",       "file": "11-ops-runbook.md",       "num": "11", "title": "システム維持保守ランブック",     "role": "システム運用の手順＋リリース台帳", "axis": "運用",     "group": "cross" },
+    { "id": "doc-ops-guide",     "file": "12-doc-ops-guide.md",     "num": "12", "title": "ドキュメント運用プロセスガイド", "role": "AI主体で維持・整合性を統制",     "axis": "横断・メタ", "group": "cross" }
   ],
   "aliases": [
     ["traceability",      ["要件トレーサビリティ", "トレーサビリティ文書", "トレーサビリティ"]],
-    ["ops-runbook",       ["運用ランブック", "ランブック", "リリース台帳"]],
+    ["ops-runbook",       ["システム維持保守ランブック", "運用ランブック", "ランブック", "リリース台帳"]],
     ["doc-ops-guide",     ["ドキュメント運用プロセスガイド", "運用ガイド", "運用プロセスガイド"]],
     ["architecture",      ["システムアーキテクチャ", "アーキテクチャ", "アーキ"]],
     ["quality-assurance", ["品質保証"]],
