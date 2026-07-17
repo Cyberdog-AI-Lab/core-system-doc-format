@@ -64,6 +64,9 @@
   .ms{font-size:11px}
 
   /* threads */
+  .threadcat{margin-bottom:4px}
+  .threadcat-h{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+  .threadcat:first-child .threadcat-h{margin-top:0}
   .thread{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px}
   .thread .lab{font-weight:600;font-size:13px}
   .thread .path{font-size:13px;color:var(--muted)}
@@ -151,12 +154,26 @@
 // 設定（タイトル・文書一覧・別名・タイムラインのデータ元）は同じフォルダの manifest.json から読む。
 // この index.html は全プロジェクト共通＝編集不要。プロジェクトごとの差は manifest.json だけで吸収する。
 let MANIFEST={}, DOCS=[], ALIASES=[], INSTANCE={name:'',file:''};
+// 貫通線は3カテゴリ7本。cat＝成果物視点（情報定義起点の"中身"）／要件視点（要件起点の実現・検証）／横断・メタ（進捗と出荷の管理）
+const THREAD_CATS = ['成果物視点（情報定義起点）','要件視点（要件起点）','横断・メタ'];
 const THREADS = [
-  {lab:'値域の貫通',        path:['glossary','info-def','func-spec','api-spec','quality-assurance']},
-  {lab:'状態の貫通',        path:['info-def','func-spec','quality-assurance']},
-  {lab:'トレーサビリティID', path:['requirement','func-spec','api-spec','quality-assurance']},
-  {lab:'非機能',           path:['requirement','architecture','quality-assurance']},
+  {cat:'成果物視点（情報定義起点）', lab:'値域',        path:['glossary','info-def','func-spec','api-spec','quality-assurance']},
+  {cat:'成果物視点（情報定義起点）', lab:'状態',        path:['info-def','func-spec','quality-assurance']},
+  {cat:'成果物視点（情報定義起点）', lab:'整合性',      path:['info-def','api-spec','data-migration','quality-assurance']},
+  {cat:'要件視点（要件起点）',      lab:'受け入れ条件', path:['requirement','quality-assurance']},
+  {cat:'要件視点（要件起点）',      lab:'非機能（検証）', path:['requirement','architecture','quality-assurance']},
+  {cat:'要件視点（要件起点）',      lab:'非機能（運用）', path:['requirement','architecture','ops-runbook']},
+  {cat:'横断・メタ',              lab:'トレーサビリティID連鎖', path:['requirement','info-def','func-spec','api-spec','architecture','quality-assurance']},
+  {cat:'横断・メタ',              lab:'リリース紐づけ', path:['requirement','data-migration','ops-runbook','traceability']},
 ];
+function renderThreads(){
+  return THREAD_CATS.map(cat=>{
+    const items = THREADS.filter(t=>t.cat===cat);
+    const body = items.map(t=>`<div class="thread"><span class="lab">${t.lab}</span>
+      <span class="path">${t.path.map(id=>`<a onclick="openDoc('${id}')">${byId[id].title}</a>`).join('<span class="arr">→</span>')}</span></div>`).join('');
+    return `<div class="threadcat"><div class="threadcat-h">${cat}</div>${body}</div>`;
+  }).join('');
+}
 const GROUPLABEL = {upstream:'上流・メタ',artifact:'成果物（設計）',verify:'検証',cross:'横断'};
 // 要件が反映されていく6層（タイムラインの横軸）。docは対応文書（実装は文書なし）
 const STAGES = [
@@ -320,13 +337,12 @@ function renderOverview(){
     <div class="meta"><span class="pill g-${d.group}">${d.axis}</span></div>
   </div>`).join('');
 
-  const threads = THREADS.map(t=>`<div class="thread"><span class="lab">${t.lab}</span>
-    <span class="path">${t.path.map(id=>`<a onclick="openDoc('${id}')">${byId[id].title}</a>`).join('<span class="arr">→</span>')}</span></div>`).join('');
+  const threads = renderThreads();
 
   document.getElementById('view-overview').innerHTML =
     `<h2 class="section">整合性モデル</h2>${svg}`+
-    `<h2 class="section">11文書</h2><div class="cards">${cards}</div>`+
-    `<h2 class="section">フォーマット群を貫く「貫通線」</h2>${threads}`;
+    `<h2 class="section">12文書</h2><div class="cards">${cards}</div>`+
+    `<h2 class="section">フォーマット群を貫く「貫通線」（3カテゴリ・7本）</h2>${threads}`;
 }
 
 /* ---------- トレーサビリティ ---------- */
@@ -457,8 +473,7 @@ function renderChecks(){
 }
 
 function renderTrace(){
-  const threads = THREADS.map(t=>`<div class="thread"><span class="lab">${t.lab}</span>
-    <span class="path">${t.path.map(id=>`<a onclick="openDoc('${id}')">${byId[id].title}</a>`).join('<span class="arr">→</span>')}</span></div>`).join('');
+  const threads = renderThreads();
 
   // 文書間の参照マトリクス（補助）
   let head = '<tr><th class="rowh">参照元 ＼ 参照先</th>'+DOCS.map(d=>`<th title="${d.title}">${d.num}</th>`).join('')+'</tr>';
@@ -478,7 +493,7 @@ function renderTrace(){
      <div class="tlbar" id="tlbar"></div>
      <div id="tlwrap"></div>
      <div id="tlcheck"></div>`+
-    `<h2 class="section">貫通線（値域・状態・ID・非機能の縦串）</h2>${threads}`+
+    `<h2 class="section">貫通線（3カテゴリ・7本）</h2>${threads}`+
     `<h2 class="section">文書間の参照（補助）</h2>${matrix}`;
   buildTlBar(); renderChecks(); updateTimeline();
 }

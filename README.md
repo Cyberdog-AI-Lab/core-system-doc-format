@@ -122,7 +122,7 @@ core-system-doc-format/
 | 11 | システム維持保守ランブック | システム運用の手順＋リリース台帳 |
 | 12 | 運用プロセスガイド | 文書メンテのルールブック（AI主体） |
 
-詳細な索引・整合性モデル・4本の貫通線は [formats/README.md](formats/README.md)。
+詳細な索引・整合性モデル・貫通線（3カテゴリ7本）は [formats/README.md](formats/README.md)。
 
 ## 思想（3行）
 

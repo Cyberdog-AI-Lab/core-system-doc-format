@@ -5,7 +5,7 @@
 
 ## 最初に読むもの
 
-1. [formats/README.md](formats/README.md) — 体系の索引（整合性モデル・12文書・4本の貫通線）
+1. [formats/README.md](formats/README.md) — 体系の索引（整合性モデル・12文書・貫通線3カテゴリ7本）
 2. [formats/12-doc-ops-guide.md](formats/12-doc-ops-guide.md) — 運用ガイド＝メンテのルールブック（§5変更フロー・§7不変ルール・§8観点）
 
 ## ドキュメントを触るときの必須ルール（運用ガイドの要約）
