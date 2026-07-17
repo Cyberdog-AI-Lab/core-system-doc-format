@@ -1,8 +1,9 @@
 {
   "pageTitle": "基幹システム ドキュメント体系ダッシュボード",
   "title": "基幹システム ドキュメント体系",
-  "subtitle": "全12文書を俯瞰・トレーサビリティ追跡・閲覧（内容はファイルから動的読込）",
+  "subtitle": "全12文書＋スキルを俯瞰・トレーサビリティ追跡・閲覧（内容はファイルから動的読込）",
   "docsDir": "../formats/",
+  "skillsDir": "../.claude/skills/",
   "instance": { "name": "図書貸出", "file": "../instance/library-lending/docs/10-traceability.md" },
   "docs": [
     { "id": "concept",           "file": "01-concept.md",           "num": "01", "title": "構想／コンセプト",               "role": "向きを揃える北極星",             "axis": "独立",       "group": "upstream" },
@@ -31,5 +32,10 @@
     ["glossary",          ["用語集"]],
     ["concept",           ["構想／コンセプト", "構想・コンセプト", "構想"]],
     ["requirement",       ["要件チケット", "要件"]]
+  ],
+  "skills": [
+    { "id": "kit-install",       "dir": "kit-install",       "file": "SKILL.md", "title": "kit-install",       "role": "文書体系一式を既存プロジェクトへ完全導入",             "axis": "導入（初回のみ）",   "group": "upstream" },
+    { "id": "consistency-check", "dir": "consistency-check", "file": "SKILL.md", "title": "consistency-check", "role": "文書間の整合性を検査・レポート（観点A〜H）",           "axis": "検査（read-only）", "group": "verify" },
+    { "id": "change-propagate",  "dir": "change-propagate",  "file": "SKILL.md", "title": "change-propagate",  "role": "変更を上流→下流へ反映し、反映状況とトレースを更新",     "axis": "反映（要確認）",     "group": "artifact" }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "pageTitle": "図書貸出システム ドキュメントダッシュボード",
   "title": "図書貸出システム — ドキュメント（実プロジェクト）",
-  "subtitle": "フォーマットに沿って記述した実文書12本を俯瞰・進捗追跡・閲覧（<code>docs/</code> から動的読込）",
+  "subtitle": "フォーマットに沿って記述した実文書12本＋スキルを俯瞰・進捗追跡・閲覧（<code>docs/</code> から動的読込）",
   "docsDir": "../docs/",
   "instance": {
     "name": "図書貸出",
@@ -202,5 +202,26 @@
         "要件"
       ]
     ]
+  ],
+  "skillsDir": "../.claude/skills/",
+  "skills": [
+    {
+      "id": "consistency-check",
+      "dir": "consistency-check",
+      "file": "SKILL.md",
+      "title": "consistency-check",
+      "role": "文書間の整合性を検査・レポート（観点A〜H）",
+      "axis": "検査（read-only）",
+      "group": "verify"
+    },
+    {
+      "id": "change-propagate",
+      "dir": "change-propagate",
+      "file": "SKILL.md",
+      "title": "change-propagate",
+      "role": "変更を上流→下流へ反映し、反映状況とトレースを更新",
+      "axis": "反映（要確認）",
+      "group": "artifact"
+    }
   ]
 }

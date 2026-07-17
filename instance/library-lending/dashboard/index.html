@@ -108,6 +108,11 @@
     padding:2px 10px;margin:0 6px 6px 0;cursor:pointer}
   .refs .chip:hover{background:var(--bg)}
 
+  /* skill view */
+  .skillmeta{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:0 0 16px}
+  .skillmeta-name{font-weight:600;font-size:14px;margin-bottom:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .skillmeta-desc{font-size:12.5px;color:var(--muted)}
+
   /* rendered markdown */
   .md h1{font-size:21px;font-weight:600;margin:18px 0 6px;padding-bottom:8px;border-bottom:1px solid var(--line)}
   .md h2{font-size:17px;font-weight:600;margin:24px 0 8px;scroll-margin-top:60px}
@@ -137,6 +142,7 @@
   <button data-view="overview" class="active">俯瞰</button>
   <button data-view="trace">トレーサビリティ</button>
   <button data-view="docs">ドキュメント</button>
+  <button data-view="skills">スキル</button>
 </nav>
 <main>
   <section class="view active" id="view-overview"></section>
@@ -148,12 +154,22 @@
       <aside class="toc" id="toc"></aside>
     </div>
   </section>
+  <section class="view" id="view-skills">
+    <h2 class="section" id="skills-h"></h2>
+    <div class="cards" id="skillcards"></div>
+    <h2 class="section">スキルの中身</h2>
+    <div class="docgrid">
+      <aside class="doclist" id="skilllist"></aside>
+      <article class="docmain md" id="skillmain"><div class="loading">スキルを選択してください</div></article>
+      <aside class="toc" id="skilltoc"></aside>
+    </div>
+  </section>
 </main>
 
 <script>
 // 設定（タイトル・文書一覧・別名・タイムラインのデータ元）は同じフォルダの manifest.json から読む。
 // この index.html は全プロジェクト共通＝編集不要。プロジェクトごとの差は manifest.json だけで吸収する。
-let MANIFEST={}, DOCS=[], ALIASES=[], INSTANCE={name:'',file:''};
+let MANIFEST={}, DOCS=[], ALIASES=[], INSTANCE={name:'',file:''}, SKILLS=[];
 // 貫通線は3カテゴリ7本。cat＝成果物視点（情報定義起点の"中身"）／要件視点（要件起点の実現・検証）／横断・メタ（進捗と出荷の管理）
 const THREAD_CATS = ['成果物視点（情報定義起点）','要件視点（要件起点）','横断・メタ'];
 const THREADS = [
@@ -187,6 +203,7 @@ const STAGES = [
 let TICKETS = []; // {id,title,stages:[{st,date,ref} x6]}
 
 const raw = {};      // id -> markdown
+const skillRaw = {}; // id -> markdown（SKILL.md、フロントマターつき）
 const refEdges = {}; // srcId -> {dstId: count}
 let byId = {};
 
@@ -199,7 +216,7 @@ async function loadAll(){
     document.getElementById('status').textContent = 'manifest.json が読み込めません';
     return;
   }
-  DOCS = MANIFEST.docs; ALIASES = MANIFEST.aliases; INSTANCE = MANIFEST.instance;
+  DOCS = MANIFEST.docs; ALIASES = MANIFEST.aliases; INSTANCE = MANIFEST.instance; SKILLS = MANIFEST.skills || [];
   byId = Object.fromEntries(DOCS.map(d=>[d.id,d]));
   if(MANIFEST.pageTitle) document.title = MANIFEST.pageTitle;
   document.querySelector('header h1').textContent = MANIFEST.title || 'ドキュメント体系ダッシュボード';
@@ -208,12 +225,17 @@ async function loadAll(){
     try{ const r2 = await fetch(MANIFEST.docsDir + d.file); raw[d.id] = r2.ok ? await r2.text() : null; }
     catch(e){ raw[d.id] = null; }
   }));
+  await Promise.all(SKILLS.map(async s=>{
+    try{ const r2 = await fetch((MANIFEST.skillsDir||'') + s.dir + '/' + (s.file||'SKILL.md')); skillRaw[s.id] = r2.ok ? await r2.text() : null; }
+    catch(e){ skillRaw[s.id] = null; }
+  }));
   computeRefs();
   try{ const r = await fetch(INSTANCE.file); TICKETS = r.ok ? parseTickets(await r.text()) : []; }
   catch(e){ TICKETS = []; }
   document.getElementById('status').textContent =
-    Object.values(raw).filter(Boolean).length + ' / ' + DOCS.length + ' 文書を読込';
-  renderOverview(); renderTrace(); renderDocList();
+    Object.values(raw).filter(Boolean).length + ' / ' + DOCS.length + ' 文書' +
+    (SKILLS.length ? '・' + Object.values(skillRaw).filter(Boolean).length + ' / ' + SKILLS.length + ' スキル' : '') + 'を読込';
+  renderOverview(); renderTrace(); renderDocList(); renderSkillCards(); renderSkillList();
 }
 
 // トレーサビリティ・マトリクス（要件ID … 品質保証 のヘッダを持つ表）をパース
@@ -341,7 +363,7 @@ function renderOverview(){
 
   document.getElementById('view-overview').innerHTML =
     `<h2 class="section">整合性モデル</h2>${svg}`+
-    `<h2 class="section">12文書</h2><div class="cards">${cards}</div>`+
+    `<h2 class="section">${DOCS.length}文書</h2><div class="cards">${cards}</div>`+
     `<h2 class="section">フォーマット群を貫く「貫通線」（3カテゴリ・7本）</h2>${threads}`;
 }
 
@@ -504,7 +526,7 @@ function renderDocList(){
   document.getElementById('doclist').innerHTML =
     DOCS.map(d=>`<a class="item" id="dl-${d.id}" onclick="openDoc('${d.id}')">${d.num} ${d.title}</a>`).join('');
 }
-function slugify(s,i){ return 'h-'+i+'-'+s.replace(/[^\wぁ-んァ-ヶ一-龠]+/g,'-').slice(0,24); }
+function slugify(s,i,prefix='h'){ return prefix+'-'+i+'-'+s.replace(/[^\wぁ-んァ-ヶ一-龠]+/g,'-').slice(0,24); }
 function openDoc(id){
   switchView('docs');
   currentDoc=id;
@@ -543,6 +565,46 @@ function refsPanel(id){
   h+='<div class="th" style="margin-top:10px">この文書を参照</div>'+(incoming.length?incoming.map(chip).join(''):'<span class="muted" style="font-size:12px">—</span>');
   h+='</div>';
   return h;
+}
+
+/* ---------- スキル（.claude/skills 配下） ---------- */
+// SKILL.md 先頭のYAMLフロントマター（--- ... ---）を取り除いて本文だけ返す
+function stripFrontmatter(md){
+  return md ? md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '') : md;
+}
+function renderSkillCards(){
+  document.getElementById('skills-h').textContent = 'スキル一覧（' + SKILLS.length + '）';
+  document.getElementById('skillcards').innerHTML = SKILLS.map(s=>`<div class="card" onclick="openSkill('${s.id}')">
+    <div class="num">${skillRaw[s.id]?'':'<span style="color:#c0392b">未読込</span>'}</div>
+    <div class="title">${s.title||s.id}</div>
+    <div class="role">${s.role||''}</div>
+    <div class="meta"><span class="pill g-${s.group||'upstream'}">${s.axis||''}</span></div>
+  </div>`).join('');
+}
+let currentSkill=null;
+function renderSkillList(){
+  document.getElementById('skilllist').innerHTML =
+    SKILLS.map(s=>`<a class="item" id="sl-${s.id}" onclick="openSkill('${s.id}')">${s.title||s.id}</a>`).join('');
+}
+function openSkill(id){
+  switchView('skills');
+  currentSkill=id;
+  SKILLS.forEach(s=>document.getElementById('sl-'+s.id)?.classList.toggle('active',s.id===id));
+  const main=document.getElementById('skillmain'), toc=document.getElementById('skilltoc');
+  const md=skillRaw[id];
+  if(!md){ main.innerHTML='<div class="loading">このスキルは読み込めませんでした（ファイル未配置）。</div>'; toc.innerHTML=''; return; }
+  const s = SKILLS.find(x=>x.id===id) || {};
+  const heads=[]; let i=0;
+  const html = marked.parse(stripFrontmatter(md),{mangle:false,headerIds:false});
+  main.innerHTML = `<div class="skillmeta"><div class="skillmeta-name">${s.title||id}</div><div class="skillmeta-desc">${s.role||''}</div></div>` + html;
+  renderMermaid(main);
+  main.querySelectorAll('h1,h2,h3').forEach(h=>{
+    const id2=slugify(h.textContent,i++,'sh'); h.id=id2;
+    heads.push({id:id2,text:h.textContent,lv:h.tagName==='H3'?3:(h.tagName==='H1'?1:2)});
+  });
+  toc.innerHTML='<div class="th">目次</div>'+heads.filter(h=>h.lv!==1).map(h=>`<a class="${h.lv===3?'h3':''}" onclick="document.getElementById('${h.id}').scrollIntoView({behavior:'smooth'})">${h.text}</a>`).join('');
+  main.scrollIntoView({block:'start'});
+  window.scrollTo({top:0});
 }
 
 /* ---------- ルーティング ---------- */
