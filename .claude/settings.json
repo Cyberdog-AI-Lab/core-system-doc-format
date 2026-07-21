@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/check-doc-ops-guide-sync.sh",
+            "timeout": 10,
+            "statusMessage": "ドキュメント運用プロセスガイドの同期チェック中…"
+          }
+        ]
+      }
+    ]
+  }
+}

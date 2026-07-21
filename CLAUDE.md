@@ -39,6 +39,7 @@
 - `templates/` … 導入用テンプレート（docs スケルトン12本・manifest.json・CLAUDE追記節）。**フォーマットの章立てを変えたら、対応するスケルトンも必ず追従させる**
 - `instance/library-lending/` … 動くサンプル。`docs/` が実文書、`formats/` は標準のコピー
 - **テンプレのフォーマットを変更したら**：①`instance/library-lending/formats/` へ cp で同期 ②consistency-check の「テンプレ自身をチェックして」を実行（文書数・貫通線・観点対応のドリフト検出）
+- `formats/12-doc-ops-guide.md` を編集すると `.claude/hooks/check-doc-ops-guide-sync.sh`（PostToolUse）が自動でリマインドする。ただし判定は機械的（ファイル名一致のみ）なので、②の実行は省略せず必ず行うこと
 
 ## やってはいけないこと
 
