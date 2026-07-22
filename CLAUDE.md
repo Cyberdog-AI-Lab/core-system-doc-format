@@ -27,6 +27,8 @@
 
 スキルとして読み込めない環境でも、上記の SKILL.md を直接読んで手順に従うこと。
 
+consistency-check・change-propagateは `.agents/skills/` にもシンボリックリンクしてある（[Agent Skills 標準](https://agentskills.io)準拠のため、Codex CLI 等からも同じ中身を利用可能）。**実体は `.claude/skills/` の1つだけ**。`.agents/skills/` を実ファイルに置き換えたり内容を分岐させたりしないこと。
+
 ## ダッシュボード
 
 - `dashboard/index.html` は全プロジェクト共通＝**編集しない**。プロジェクト差は同フォルダの `manifest.json` だけで吸収する
@@ -37,7 +39,7 @@
 
 - `formats/` … 12フォーマットの**正**（single source of truth）
 - `templates/` … 導入用テンプレート（docs スケルトン12本・manifest.json・CLAUDE追記節）。**フォーマットの章立てを変えたら、対応するスケルトンも必ず追従させる**
-- `instance/library-lending/` … 動くサンプル。`docs/` が実文書、`formats/` は標準のコピー
+- `instance/library-lending/` … 動くサンプル。`docs/` が実文書、`formats/` は標準のコピー。`.agents/skills/` も同様にキット直下と対になるシンボリックリンクを持つ
 - **テンプレのフォーマットを変更したら**：①`instance/library-lending/formats/` へ cp で同期 ②consistency-check の「テンプレ自身をチェックして」を実行（文書数・貫通線・観点対応のドリフト検出）
 - `formats/12-doc-ops-guide.md` を編集すると `.claude/hooks/check-doc-ops-guide-sync.sh`（PostToolUse）が自動でリマインドする。ただし判定は機械的（ファイル名一致のみ）なので、②の実行は省略せず必ず行うこと
 

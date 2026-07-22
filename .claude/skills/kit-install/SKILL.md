@@ -2,7 +2,7 @@
 name: kit-install
 description: >
   core-system-doc-format（基幹システム文書体系キット）を、既存のプロジェクトリポジトリへ完全導入するスキル。
-  文書スケルトン12本・記載標準・ダッシュボード・AIスキル（.claude/skills）・反映漏れリマインドフック・CLAUDE.md設定まで一式をセットアップする。
+  文書スケルトン12本・記載標準・ダッシュボード・AIスキル（.claude/skills、Codex CLI等でも使えるよう.agents/skillsへシンボリックリンク配置）・反映漏れリマインドフック・CLAUDE.md設定まで一式をセットアップする。
   「このプロジェクトに文書体系を導入して」「キットをインストールして」「core-system-doc-format を導入して」
   「ドキュメント一式をこのリポジトリにセットアップして」など、クローン済みキットを対象プロジェクトへ導入したいときに必ずこのスキルを使うこと。
 ---
@@ -24,6 +24,9 @@ description: >
 ├── .claude/skills/
 │   ├── consistency-check/   ← 整合検査（「整合性をチェックして」で起動）
 │   └── change-propagate/    ← 変更反映（「この要件を反映して」で起動）
+├── .agents/skills/
+│   ├── consistency-check → ../../.claude/skills/consistency-check   ← シンボリックリンク（Codex CLI等から同じ中身を利用）
+│   └── change-propagate  → ../../.claude/skills/change-propagate    ← シンボリックリンク
 ├── .claude/hooks/
 │   └── check-doc-ops-guide-sync.sh  ← 12-doc-ops-guide.md 変更時に反映漏れをリマインドするフック
 ├── .claude/settings.json    ← 上記フックの登録（既存があればマージ・上書きしない）
@@ -51,7 +54,7 @@ description: >
 
 - 対象が git リポジトリか確認（でなくても導入は可能。履歴管理を勧めるだけ）
 - `{docsDir}/` が既に存在して**空でない**場合は、中身を見せて進め方を確認する（上書きしない）
-- `.claude/skills/` に同名スキルが既にある場合も確認する
+- `.claude/skills/` や `.agents/skills/` に同名スキル（ディレクトリ or 別ツール由来のシンボリックリンク）が既にある場合も確認する
 
 ### 3. コピー（機械的に）
 
@@ -66,6 +69,12 @@ cp "$KIT/templates/manifest.json" "$DST/$DOCS/dashboard/manifest.json"
 cp -r "$KIT/.claude/skills/consistency-check" "$KIT/.claude/skills/change-propagate" "$DST/.claude/skills/"
 cp "$KIT/.claude/hooks/check-doc-ops-guide-sync.sh" "$DST/.claude/hooks/"
 chmod +x "$DST/.claude/hooks/check-doc-ops-guide-sync.sh"
+
+# .claude/skills/ は Agent Skills 標準（https://agentskills.io）準拠。
+# Codex CLI 等は .agents/skills/ から読むため、実体は増やさずシンボリックリンクで同じ中身を見せる。
+mkdir -p "$DST/.agents/skills"
+ln -s ../../.claude/skills/consistency-check "$DST/.agents/skills/consistency-check"
+ln -s ../../.claude/skills/change-propagate  "$DST/.agents/skills/change-propagate"
 ```
 
 ### 4. 差し込み（AIの仕事はここだけ）
@@ -93,16 +102,18 @@ chmod +x "$DST/.claude/hooks/check-doc-ops-guide-sync.sh"
 
 ### 5. 動作確認
 
-- ファイル確認：文書12本＋`formats/`（13ファイル）＋`dashboard/`（2ファイル）＋スキル2本＋フック1本
+- ファイル確認：文書12本＋`formats/`（13ファイル）＋`dashboard/`（2ファイル）＋スキル2本＋フック1本＋`.agents/skills/`シンボリックリンク2本
 - ダッシュボード：`npx serve $DST/$DOCS -p 4322` → `http://localhost:4322/dashboard/` で「12 / 12 文書を読込」
 - トレーサビリティ（10）の§2はヘッダのみ＝**タイムラインが空でも正常**（要件を起票すると増えていく）と伝える
 - フックの生存確認：`echo '{"tool_name":"Edit","tool_input":{"file_path":"'$DST'/'$DOCS'/12-doc-ops-guide.md"}}' | bash "$DST/.claude/hooks/check-doc-ops-guide-sync.sh"` が systemMessage を返すことを確認する
+- シンボリックリンクの生存確認：`readlink "$DST/.agents/skills/consistency-check"` がパスを返し、`cat "$DST/.agents/skills/consistency-check/SKILL.md"` で本物のSKILL.mdが読めることを確認する
 
 ### 6. 完了報告と次の一歩
 
 - 導入されたものの一覧と、**書く順序**を案内：構想・用語集 → 要件 → アーキ → 情報定義 → 機能仕様 → API仕様 →（実装）→ 品質保証 → データ移行 → システム維持保守ランブック
 - 以後の運用：変更は「この要件を反映して」（change-propagate）／点検は「整合性をチェックして」（consistency-check）
 - **12-doc-ops-guide.md を編集すると、consistency-check/change-propagate への反映漏れがないかを自動でリマインドするフックが入っている**ことも伝える
+- **同じ2スキルは Codex CLI からも使える**（`.agents/skills/` へのシンボリックリンク。中身は`.claude/skills/`と共通の1つなので、二重管理・ドリフトの心配がない）ことも伝える
 - コミットは**ユーザーに委ねる**（導入内容を確認してもらってから）
 
 ## 守るルール
@@ -110,4 +121,5 @@ chmod +x "$DST/.claude/hooks/check-doc-ops-guide-sync.sh"
 - **内容を創作しない**（スケルトンは空欄のまま渡す。埋めるのはプロジェクトの人とAIの共同作業）
 - **既存ファイルを上書きしない**（CLAUDE.md は追記のみ・`.claude/settings.json` はJSONマージのみ。衝突は必ず確認してから）
 - `formats/` と `dashboard/index.html` と `.claude/hooks/check-doc-ops-guide-sync.sh` は**無編集で写す**（プロジェクト差は manifest.json だけで吸収）
+- `.agents/skills/` は**シンボリックリンクのまま**にする（`.claude/skills/`の実体をコピーして二重化しない。Agent Skills標準はディレクトリを規定せず各ツールが独自に決めるため、実体は1つに保ったまま複数パスから見せる）
 - 導入だけを行い、勝手にコミット・プッシュしない
