@@ -34,7 +34,8 @@
     ["requirement",       ["要件チケット", "要件"]]
   ],
   "skills": [
-    { "id": "kit-install",       "dir": "kit-install",       "file": "SKILL.md", "title": "kit-install",       "role": "文書体系一式を既存プロジェクトへ完全導入",             "axis": "導入（初回のみ）",   "group": "upstream" },
+    { "id": "kit-install",       "dir": "kit-install",       "file": "SKILL.md", "title": "kit-install",       "role": "文書体系一式を既存プロジェクトへ完全導入（初回）",       "axis": "導入（初回のみ）",   "group": "upstream" },
+    { "id": "kit-update",        "dir": "kit-update",        "file": "SKILL.md", "title": "kit-update",        "role": "導入済みプロジェクトを最新キットへ更新（実文書は壊さない）", "axis": "更新（2回目以降）", "group": "upstream" },
     { "id": "consistency-check", "dir": "consistency-check", "file": "SKILL.md", "title": "consistency-check", "role": "文書間の整合性を検査・レポート（観点A〜H）",           "axis": "検査（read-only）", "group": "verify" },
     { "id": "change-propagate",  "dir": "change-propagate",  "file": "SKILL.md", "title": "change-propagate",  "role": "変更を上流→下流へ反映し、反映状況とトレースを更新",     "axis": "反映（要確認）",     "group": "artifact" }
   ]

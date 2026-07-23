@@ -94,6 +94,16 @@ npx serve docs -p 4322
 - **点検するとき**：「**ドキュメントの整合性をチェックして**」→ 8つの観点で検査（read-only）
 - 要件を起票してトレーサビリティ（10）の表に行を足すと、ダッシュボードに**進捗タイムライン**が現れます
 
+### 4. キットを最新化する（2回目以降）
+
+キット側でフォーマットやスキル・ダッシュボードが更新されたら、導入済みプロジェクトへ追従させます。**最新のキットをクローンした状態で** Claude Code を起動し：
+
+```
+/kit-update ~/path/to/your-project を最新化して
+```
+
+kit-update は、キット所有ファイル（記載標準 `formats/`・ダッシュボード共通HTML・スキル本体・フック・`.agents/skills/`）を丸ごと入れ替え、プロジェクト所有ファイル（**あなたが埋めた実文書**・`manifest.json`・`CLAUDE.md`/`AGENTS.md`・`settings.json`）はマージか差分提示で扱います。**埋めた実文書は絶対に上書きしません**。フォーマットの章立てが変わっていた場合は、consistency-check で追従が必要な箇所を可視化し、change-propagate の流儀で1つずつ反映します。
+
 ## サンプルを見る（導入後の姿）
 
 図書館の貸出システムを題材に、12文書を実際に埋めたサンプルを同梱しています。
@@ -109,13 +119,14 @@ npx serve docs -p 4322
 core-system-doc-format/
 ├── README.md                ← 本ファイル
 ├── CLAUDE.md                ← Claude Code への運用指示（キット自体を触るとき用）
-├── .claude/skills/          ← 同梱スキル3本（クローンで Claude Code を起動すればそのまま呼べる）
-│   ├── kit-install/         ← プロジェクトへの完全導入（本README §2-A）
+├── .claude/skills/          ← 同梱スキル4本（クローンで Claude Code を起動すればそのまま呼べる）
+│   ├── kit-install/         ← プロジェクトへの初回完全導入（本README §2-A）
+│   ├── kit-update/          ← 導入済みプロジェクトを最新キットへ更新（実文書は壊さない）
 │   ├── consistency-check/   ← 整合性の検査（観点A〜H・read-only既定）
 │   └── change-propagate/    ← 変更を上流→下流へ反映し記録
 ├── .claude/hooks/           ← 12-doc-ops-guide.md 変更時に反映漏れをリマインドするフック（kit-installで導入先にも配置）
 ├── .claude/settings.json    ← 上記フックの登録
-├── .agents/skills/          ← consistency-check・change-propagateへのシンボリックリンク（Codex CLI等がAgent Skills標準経由で同じ中身を利用。kit-installで導入先にも配置）
+├── .agents/skills/          ← 各スキルへのシンボリックリンク（Codex CLI等がAgent Skills標準経由で同じ中身を利用。consistency-check・change-propagateはkit-installで導入先にも配置）
 ├── templates/               ← 導入用テンプレート（docs スケルトン12本・manifest・CLAUDE追記節）
 ├── formats/                 ← 12フォーマットの正（索引＝formats/README.md）
 ├── dashboard/               ← 俯瞰ダッシュボード（index.html は全プロジェクト共通・編集不要）

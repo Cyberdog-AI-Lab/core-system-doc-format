@@ -1,6 +1,6 @@
 # CLAUDE.md — core-system-doc-format
 
-このリポジトリは基幹システム開発の**ドキュメント体系テンプレート**（12フォーマット＋スキル3本＋ダッシュボード＋サンプル）。
+このリポジトリは基幹システム開発の**ドキュメント体系テンプレート**（12フォーマット＋スキル4本＋ダッシュボード＋サンプル）。
 ドキュメントのメンテナンスは **AI主体・人はレビューと承認** が前提。あなた（Claude）がその主体である。
 
 ## 最初に読むもの
@@ -21,7 +21,8 @@
 
 | やること | 従うファイル | 要点 |
 |---|---|---|
-| 既存プロジェクトへの完全導入 | [.claude/skills/kit-install/SKILL.md](.claude/skills/kit-install/SKILL.md) | キット内で実行し**導入先はパスで受け取る**。`templates/` から機械的にコピー＋スキル配置＋CLAUDE.md 追記（上書きしない） |
+| 既存プロジェクトへの**初回**完全導入 | [.claude/skills/kit-install/SKILL.md](.claude/skills/kit-install/SKILL.md) | キット内で実行し**導入先はパスで受け取る**。`templates/` から機械的にコピー＋スキル配置＋CLAUDE.md 追記（上書きしない） |
+| 導入済みプロジェクトの**更新**（2回目以降） | [.claude/skills/kit-update/SKILL.md](.claude/skills/kit-update/SKILL.md) | キット所有（formats/・共通HTML・スキル・フック）は丸ごと入れ替え／プロジェクト所有（実文書・manifest・CLAUDE/AGENTS・settings）はマージか差分提示。**埋めた実文書は壊さない**（フォーマット追従は consistency-check で可視化→change-propagate で反映） |
 | 整合性の検査 | [.claude/skills/consistency-check/SKILL.md](.claude/skills/consistency-check/SKILL.md) | 観点A〜H・**read-only既定**・「テンプレ自身をチェックして」で自己検査モード |
 | 変更の反映 | [.claude/skills/change-propagate/SKILL.md](.claude/skills/change-propagate/SKILL.md) | 1層ずつ提案→確認が既定（「一括で」指示時のみ全適用）・反映のたびに二重記録 |
 
