@@ -98,6 +98,12 @@
   .doclist .item:hover{background:var(--surface)}
   .doclist .item.active{background:var(--artifact-bg);color:var(--artifact);font-weight:500}
   .docmain{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 26px 30px;min-width:0}
+  .docmode{display:inline-flex;gap:0;margin:8px 0 4px;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+  .docmode button{font:inherit;font-size:12px;border:0;border-left:1px solid var(--line2);background:var(--surface);color:var(--muted);padding:5px 14px;cursor:pointer}
+  .docmode button:first-child{border-left:0}
+  .docmode button.active{background:var(--artifact-bg);color:var(--artifact);font-weight:600}
+  .docmode button:disabled{color:var(--hint);cursor:not-allowed}
+  .docmode-note{font-size:12px;color:var(--muted);margin:6px 2px 14px}
   .toc{position:sticky;top:54px;font-size:12px;max-height:80vh;overflow:auto}
   .toc .th{font-weight:600;color:var(--muted);margin:0 0 6px}
   .toc a{display:block;color:var(--muted);padding:2px 0}
@@ -202,7 +208,9 @@ const STAGES = [
 ];
 let TICKETS = []; // {id,title,stages:[{st,date,ref} x6]}
 
-const raw = {};      // id -> markdown
+const raw = {};      // id -> markdown（実文書。docsDir から）
+const fmtRaw = {};   // id -> markdown（記載標準。formatsDir から。導入プロジェクトで docs≠formats のとき）
+let HAS_FORMATS = false; // formatsDir が docsDir と別に指定されているか（＝実文書／記載標準の切替を出すか）
 const skillRaw = {}; // id -> markdown（SKILL.md、フロントマターつき）
 const refEdges = {}; // srcId -> {dstId: count}
 let byId = {};
@@ -225,6 +233,14 @@ async function loadAll(){
     try{ const r2 = await fetch(MANIFEST.docsDir + d.file); raw[d.id] = r2.ok ? await r2.text() : null; }
     catch(e){ raw[d.id] = null; }
   }));
+  // 記載標準（formats/）を別に持つ導入プロジェクトでは、実文書とは別に読み込んで「記載標準」表示に使う
+  HAS_FORMATS = !!MANIFEST.formatsDir && MANIFEST.formatsDir !== MANIFEST.docsDir;
+  if(HAS_FORMATS){
+    await Promise.all(DOCS.map(async d=>{
+      try{ const r2 = await fetch(MANIFEST.formatsDir + d.file); fmtRaw[d.id] = r2.ok ? await r2.text() : null; }
+      catch(e){ fmtRaw[d.id] = null; }
+    }));
+  }
   await Promise.all(SKILLS.map(async s=>{
     try{ const r2 = await fetch((MANIFEST.skillsDir||'') + s.dir + '/' + (s.file||'SKILL.md')); skillRaw[s.id] = r2.ok ? await r2.text() : null; }
     catch(e){ skillRaw[s.id] = null; }
@@ -527,24 +543,37 @@ function renderDocList(){
     DOCS.map(d=>`<a class="item" id="dl-${d.id}" onclick="openDoc('${d.id}')">${d.num} ${d.title}</a>`).join('');
 }
 function slugify(s,i,prefix='h'){ return prefix+'-'+i+'-'+s.replace(/[^\wぁ-んァ-ヶ一-龠]+/g,'-').slice(0,24); }
-function openDoc(id){
+// mode: 'doc'（実文書＝docsDir）／'fmt'（記載標準＝formatsDir）。記載標準を別に持つ導入プロジェクトでのみ切替を出す
+function openDoc(id, mode){
   switchView('docs');
   currentDoc=id;
+  mode = mode==='fmt' ? 'fmt' : 'doc';
   DOCS.forEach(d=>document.getElementById('dl-'+d.id)?.classList.toggle('active',d.id===id));
   const main=document.getElementById('docmain'), toc=document.getElementById('toc');
-  const md=raw[id];
-  if(!md){ main.innerHTML='<div class="loading">この文書は読み込めませんでした（ファイル未配置）。</div>'; toc.innerHTML=''; return; }
+  // 切替バー（実文書／記載標準）。記載標準を別に持つプロジェクトだけ表示
+  const fmtMissing = HAS_FORMATS && !fmtRaw[id];
+  const toggle = HAS_FORMATS ? `<div class="docmode">
+      <button class="${mode==='doc'?'active':''}" onclick="openDoc('${id}','doc')">実文書</button>
+      <button class="${mode==='fmt'?'active':''}"${fmtMissing?' disabled':''} onclick="openDoc('${id}','fmt')">記載標準</button>
+    </div>`
+    + (mode==='fmt' ? `<div class="docmode-note">この文書の<b>記載標準（書き方・章立て・ルールの原本）</b>を表示中。プロジェクトの実文書は「実文書」タブへ。</div>` : '')
+    : '';
+  const md = mode==='fmt' ? fmtRaw[id] : raw[id];
+  if(!md){
+    const msg = mode==='fmt' ? 'この文書の記載標準が読み込めませんでした（formats/ 未配置）。' : 'この文書は読み込めませんでした（ファイル未配置）。';
+    main.innerHTML=toggle+'<div class="loading">'+msg+'</div>'; toc.innerHTML=''; return;
+  }
   // 見出し抽出してアンカー付与
   const heads=[]; let i=0;
   const html=marked.parse(md,{mangle:false,headerIds:false});
-  main.innerHTML=html;
-  // 文書内リンク：同じフォルダの .md はビューア内で開く。別フォルダの .md は新しいタブで開く（404防止）
+  main.innerHTML=toggle+html;
+  // 文書内リンク：同じフォルダの .md はビューア内で開く（今のモードを保つ）。別フォルダの .md は新しいタブで開く（404防止）
   main.querySelectorAll('a[href]').forEach(a=>{
     const href=a.getAttribute('href')||'';
     if(!href.includes('.md')) return;
     const fname=href.split('/').pop().split('#')[0];
     const d = href.includes('/') ? null : DOCS.find(x=>x.file===fname);
-    if(d){ a.removeAttribute('href'); a.style.cursor='pointer'; a.onclick=()=>openDoc(d.id); }
+    if(d){ a.removeAttribute('href'); a.style.cursor='pointer'; a.onclick=()=>openDoc(d.id, mode); }
     else { a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
   });
   renderMermaid(main);

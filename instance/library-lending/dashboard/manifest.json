@@ -3,6 +3,7 @@
   "title": "図書貸出システム — ドキュメント（実プロジェクト）",
   "subtitle": "フォーマットに沿って記述した実文書12本＋スキルを俯瞰・進捗追跡・閲覧（<code>docs/</code> から動的読込）",
   "docsDir": "../docs/",
+  "formatsDir": "../formats/",
   "instance": {
     "name": "図書貸出",
     "file": "../docs/10-traceability.md"

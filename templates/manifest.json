@@ -3,6 +3,7 @@
   "title": "{システム名} — ドキュメント",
   "subtitle": "実文書12本を俯瞰・進捗追跡・閲覧（このフォルダから動的読込）",
   "docsDir": "../",
+  "formatsDir": "../formats/",
   "instance": { "name": "{システム名}", "file": "../10-traceability.md" },
   "docs": [
     { "id": "concept",           "file": "01-concept.md",           "num": "01", "title": "構想／コンセプト",               "role": "向きを揃える北極星",             "axis": "独立",       "group": "upstream" },
